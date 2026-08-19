@@ -3,12 +3,15 @@ import "./stil.css";
 import { Kart, FLISER } from "./Kart";
 import { Liste } from "./Liste";
 import { Historie } from "./Historie";
+import { Aktorbaner } from "./Aktorbaner";
 import { Panel } from "./Panel";
 import { Kildeflyt } from "./Kildeflyt";
 import { Rundtur, harSettRundtur, husk } from "./Rundtur";
 import { TilstandCtx, reducer, startTilstand, type Bakgrunn } from "./tilstand";
 import {
   STASJONER, KLASSER, KILDER, RAPPORTER, OMRADE_FANER, STANDARD_OMRADE, HISTORIE,
+  OMRADE, finnAktor, finnAktorHendelse, stasjonerForAktor, stasjonerForGruppe,
+  hendelsegruppe,
   klassefarge, finnRapport, finnTiltak, alleStasjonerForRapport, kilderForRapport,
   finnAvsnitt, kartFor, stasjonerForAar,
   settOmrade, type OmradeId,
@@ -85,10 +88,16 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
   /* Legenden teller det kartet faktisk viser — ellers står den og lyver om et
      utsnitt den ikke gjelder for. */
   const valgtAar = s.valg.slag === "aar" ? s.valg.aar : null;
+  const valgtHendelse = s.valg.slag === "aktorHendelse" ? finnAktorHendelse(s.valg.id) : null;
+  const valgtAktor = s.valg.slag === "aktor" ? finnAktor(s.valg.id) : null;
   const avsnittPunkter = valgtAvsnitt
     ? kartFor(valgtAvsnitt).stasjoner
     : valgtAar != null
     ? stasjonerForAar(valgtAar)
+    : valgtHendelse
+    ? stasjonerForGruppe(s.valg.slag === "aktorHendelse" ? s.valg.id : null)
+    : valgtAktor
+    ? stasjonerForAktor(valgtAktor)
     : [];
 
   const fordeling = useMemo(() => {
@@ -112,8 +121,8 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
      resten. «Tilbake til lista» i panelet henter den fram igjen. */
   /* Avsnitt og år styrer bare kartet — fortellingen skal bli stående, ellers
      mister man plassen sin i teksten hver gang man ser på noe. */
-  const panelApent =
-    s.valg.slag !== "ingen" && s.valg.slag !== "avsnitt" && s.valg.slag !== "aar";
+  const panelApent = !["ingen", "avsnitt", "aar", "aktor", "aktorHendelse"]
+    .includes(s.valg.slag);
 
   const flytRapport = s.flyt?.slag === "rapport" ? finnRapport(s.flyt.id) : null;
 
@@ -149,9 +158,19 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
             </div>
           </div>
 
-          {(valgtRapport || valgtTiltak || oppsummering || valgtAvsnitt || valgtAar != null) && (
+          {(valgtRapport || valgtTiltak || oppsummering || valgtAvsnitt
+            || valgtAar != null || valgtHendelse || valgtAktor) && (
             <div className="kartstatus">
-              {valgtAar != null ? (
+              {valgtHendelse ? (
+                <>
+                  Kartet viser <b>{valgtHendelse.aar}</b> — {valgtHendelse.tekst}.
+                </>
+              ) : valgtAktor ? (
+                <>
+                  Kartet viser alt <b>{valgtAktor.navn}</b> har rørt —{" "}
+                  {avsnittPunkter.length} punkter.
+                </>
+              ) : valgtAar != null ? (
                 <>
                   Kartet viser <b>{valgtAar}</b> — {avsnittPunkter.length}{" "}
                   {avsnittPunkter.length === 1 ? "stasjon" : "stasjoner"} målt det året.
@@ -208,6 +227,8 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
 
         {panelApent ? (
           <div className="panelvert bred"><Panel /></div>
+        ) : OMRADE.visning === "aktorer" ? (
+          <div className="listevert historievert"><Aktorbaner /></div>
         ) : HISTORIE ? (
           <div className="listevert historievert"><Historie /></div>
         ) : (

@@ -670,3 +670,107 @@ table.pt tbody tr:hover { background: var(--cream2); }
 .tl2-note {
   margin: 0.45rem 0 0; font-size: 0.7rem; line-height: 1.5; color: var(--muted);
 }
+
+/* ── Aktørbanene ──────────────────────────────────────────────────────── */
+/* Én bane per aktør, tid bortover. Navnet og rollene til venstre, merkene på
+   sporet til høyre. Rollene er hva registrene sier — ikke en karakteristikk. */
+.aktorer { height: 100%; overflow-y: auto; padding: 0.9rem 1.05rem 3rem; }
+
+.akt-hode { padding-bottom: 0.9rem; border-bottom: 1px solid var(--line); display: grid; gap: 0.5rem; }
+.akt-inn { margin: 0; font-size: 0.85rem; line-height: 1.58; color: var(--muted); }
+.akt-funn {
+  margin: 0; font-size: 0.88rem; line-height: 1.55;
+  border-left: 2px solid var(--teal); padding: 0.15rem 0 0.15rem 0.6rem;
+  background: color-mix(in srgb, var(--teal) 6%, transparent);
+}
+.akt-funn b { color: var(--ink); }
+
+.akt-akse {
+  display: grid; grid-template-columns: 150px 1fr; gap: 10px;
+  padding: 0.7rem 0 0.2rem;
+}
+.akse-tall {
+  display: flex; justify-content: space-between;
+  font-size: 0.6rem; color: var(--muted);
+}
+
+.akt-baner { border-top: 1px solid var(--line); }
+
+.bane {
+  display: grid; grid-template-columns: 150px 1fr; gap: 10px;
+  align-items: center; padding: 0.3rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.bane.valgt { background: color-mix(in srgb, var(--teal) 7%, transparent); }
+
+.bane-navn {
+  border: 0; background: transparent; cursor: pointer; text-align: left;
+  padding: 0.1rem 0; font: inherit; display: grid; gap: 1px; color: var(--ink);
+}
+.bane-navn b { font-size: 0.79rem; font-weight: 600; line-height: 1.25; }
+.bane-navn:hover b { color: var(--teal); }
+.bane-roller { display: flex; flex-wrap: wrap; gap: 3px; }
+.rolle {
+  font-family: var(--font-mono); font-size: 0.56rem; font-style: normal;
+  padding: 0 4px; border-radius: 99px; border: 1px solid var(--line);
+  color: var(--muted); letter-spacing: 0.02em;
+}
+.rolle.kilde { border-color: #c0392b; color: #c0392b; }
+.rolle.bestiller { border-color: var(--teal); color: var(--teal); }
+
+.bane-spor { position: relative; height: 22px; }
+.bane-linje {
+  position: absolute; left: 0; right: 0; top: 50%; height: 1px;
+  background: var(--line);
+}
+.merke {
+  position: absolute; top: 50%; width: 11px; height: 11px; padding: 0;
+  transform: translate(-50%, -50%); border: 0; cursor: pointer; background: none;
+}
+.merke::after {
+  content: ""; display: block; width: 9px; height: 9px; margin: 1px;
+}
+.merke.bestilt::after { background: var(--teal); border-radius: 50%; }
+.merke.utfort::after {
+  border: 1.5px solid var(--teal); border-radius: 50%; box-sizing: border-box;
+}
+.merke.utgitt::after { background: color-mix(in srgb, var(--teal) 55%, transparent); }
+.merke.tiltak::after { background: #e8902e; border-radius: 2px; }
+.merke:hover { transform: translate(-50%, -50%) scale(1.5); z-index: 2; }
+.merke:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.merke.statisk { position: static; transform: none; display: inline-block; }
+.merke.statisk:hover { transform: none; }
+.sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.bane-mer {
+  grid-column: 1 / -1; padding: 0.3rem 0 0.7rem;
+  display: grid; gap: 0.35rem; font-size: 0.76rem; line-height: 1.55;
+}
+.bane-mer .d { color: var(--muted); margin: 0; }
+.bane-mer ul { list-style: none; margin: 0.2rem 0 0; padding: 0; display: grid; gap: 2px; }
+.bane-mer li {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem;
+  padding: 0.15rem 0; border-top: 1px solid var(--line);
+}
+.bane-mer li .mono { color: var(--teal); font-size: 0.68rem; }
+.bane-mer a { color: var(--teal); font-size: 0.66rem; }
+
+.akt-tegn {
+  display: flex; flex-wrap: wrap; gap: 0.25rem 0.9rem;
+  padding: 0.6rem 0 0; font-size: 0.66rem; color: var(--muted);
+}
+.akt-tegn span { display: flex; align-items: center; gap: 0.3rem; }
+.akt-note {
+  margin: 0.5rem 0 0; font-size: 0.72rem; line-height: 1.55; color: var(--muted);
+}
+.akt-note b { color: var(--ink); font-weight: 600; }
+
+/* Et merke som dekker flere hendelser samme år får en ring rundt seg. */
+.merke.flere::before {
+  content: ""; position: absolute; inset: -3px;
+  border: 1px solid var(--teal); border-radius: 50%; opacity: .55;
+}
+.merke.tiltak.flere::before { border-color: #e8902e; border-radius: 3px; }

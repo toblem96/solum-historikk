@@ -15,3 +15,4 @@ export { D_TIDSROM } from "./tidsrom";
 export { D_UNDERSOKELSER } from "./undersokelser";
 export { D_RAPPORTNUMRE } from "./rapportnumre";
 export { D_GEOGRAFI } from "./geografi";
+export { D_AKTORER } from "./aktorer";

@@ -1,13 +1,13 @@
-/* Generert av verktoy/bygg_omrade.py vikkilen2 — ikke redigert for hånd.
- * Råmaterialet ligger i verktoy/hentet/vikkilen2/ og hentes av hent_omrade.py vikkilen2.
+/* Generert av verktoy/bygg_omrade.py vikkilen3 — ikke redigert for hånd.
+ * Råmaterialet ligger i verktoy/hentet/vikkilen3/ og hentes av hent_omrade.py vikkilen3.
  */
 export const D_STASJONER_META = {
- "id": "vikkilen2",
+ "id": "vikkilen3",
  "omrade": "Vikkilen",
- "fane": "Vikkilen · historien",
- "visning": "kort",
+ "fane": "Vikkilen · aktørene",
+ "visning": "aktorer",
  "kommune": "Grimstad",
- "undertittel": "Samme sted og samme målinger, men fortalt som historie — med alle referanserapportene, to hopp ut i referanselistene",
+ "undertittel": "Hvem gjorde hva, og på hvems regning — utledet av oppdragsgiver og utførende i registrene",
  "antall": 70,
  "antallFraVannmiljo": 52,
  "antallFraRapport": 18,

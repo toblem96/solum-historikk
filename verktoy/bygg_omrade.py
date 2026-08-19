@@ -707,6 +707,131 @@ def skriv(data, navn, konstant, verdi, topptekst):
         f.write("".join(linjer))
 
 
+def bygg_aktorer(omr, ctx):
+    """Hvem gjorde hva, og på hvems regning.
+
+    Aktørene er ikke en liste noen har skrevet. De faller ut av dataene: alle som
+    står som oppdragsgiver eller utførende på en undersøkelse i Vannmiljø, på en
+    rapport, eller på et tiltak — pluss kildene som er belagt i Grunnforurensning.
+
+    Rollen er heller ikke satt for hånd. Den er hva registeret sier at aktøren
+    faktisk gjorde: bestilte, utførte, ga ut, eller er ført opp som kilde. Det er
+    en viktig forskjell — vi kaller ingen «myndighet» eller «forurenser» uten at
+    et register sier det.
+
+    Sammenstillingen viser én ting ingen av de andre visningene gjør: hvem som
+    betalte for kunnskapen om forurensningen.
+    """
+    alias = getattr(omr, "AKTOR_ALIAS", [])
+
+    def kanonisk(navn):
+        n = " ".join((navn or "").split())
+        if not n:
+            return "Ikke oppgitt"
+        lav = n.lower()
+        for bit, riktig in alias:
+            if bit in lav:
+                return riktig
+        return n
+
+    def del_opp(navn):
+        """«AS Nymo / Fylkesmannen i Aust-Agder» er to aktører, ikke én."""
+        biter = re.split(r"\s*[/;]\s*|\s+og\s+", navn or "")
+        return [b for b in (x.strip() for x in biter) if b] or ["Ikke oppgitt"]
+
+    aktorer = defaultdict(lambda: {"hendelser": [], "raa": set()})
+
+    def legg(navn_raa, hendelse):
+        for bit in del_opp(navn_raa):
+            navn = kanonisk(bit)
+            aktorer[navn]["hendelser"].append(hendelse)
+            aktorer[navn]["raa"].add(" ".join(bit.split()))
+
+    for u in ctx["undersokelser"]:
+        felles = {"aar": u["aar"], "punkter": u["stasjoner"],
+                  "antall": u["antallStasjoner"], "ref": u["id"]}
+        legg(u["oppdragsgiver"], {**felles, "slag": "bestilte",
+                                  "tekst": f'bestilte {u["antallStasjoner"]} stasjoner'})
+        legg(u["utforende"], {**felles, "slag": "utforte",
+                              "tekst": f'målte {u["antallStasjoner"]} stasjoner'})
+
+    for r in ctx["rapporter"]:
+        aar = r["aar"] or r.get("maaltFra")
+        if not aar:
+            continue
+        felles = {"aar": aar, "punkter": r["dekkerPunkter"],
+                  "antall": len(r["dekkerPunkter"]), "ref": r["id"]}
+        legg(r["utforer"], {**felles, "slag": "utga",
+                            "tekst": f'ga ut {r["rapportnummer"]}'})
+        if r.get("oppdragsgiver"):
+            legg(r["oppdragsgiver"], {**felles, "slag": "bestilte_rapport",
+                                      "tekst": f'oppdragsgiver for {r["rapportnummer"]}'})
+
+    for t in ctx["tiltak"]:
+        if not t.get("aarFra"):
+            continue
+        felles = {"aar": t["aarFra"], "punkter": t["punkter"],
+                  "antall": len(t["punkter"]), "ref": t["id"]}
+        legg(t.get("utforer"), {**felles, "slag": "tiltak_utfort",
+                                "tekst": f'utførte {t["navn"].lower()}'})
+        legg(t.get("oppdragsgiver"), {**felles, "slag": "tiltak_bestilt",
+                                      "tekst": f'bestilte {t["navn"].lower()}'})
+
+    # Kildene: bare de som faktisk er belagt. En antatt kilde er ikke en aktør.
+    kilde_av_navn = {}
+    for k in ctx["kilder"]:
+        if k["belegg"] != "belagt":
+            continue
+        navn = kanonisk(k["navn"])
+        kilde_av_navn.setdefault(navn, k)
+        aktorer[navn]["raa"].add(k["navn"])
+
+    ut = []
+    for navn, a in aktorer.items():
+        h = sorted(a["hendelser"], key=lambda x: (x["aar"], x["slag"]))
+        # En kilde uten en eneste hendelse i registrene er ikke en aktør. «Kommunalt
+        # avløp» og «småbåthavn» er diffuse fenomener — det finnes ingen som har
+        # bestilt eller utført noe i deres navn, og en tom bane ville påstått at det
+        # gjorde det.
+        if not h:
+            continue
+        antall = Counter(x["slag"] for x in h)
+        roller = []
+        if navn in kilde_av_navn:
+            roller.append("kilde")
+        if antall["bestilte"] or antall["bestilte_rapport"] or antall["tiltak_bestilt"]:
+            roller.append("bestiller")
+        if antall["utforte"] or antall["utga"] or antall["tiltak_utfort"]:
+            roller.append("utfører")
+        kilde = kilde_av_navn.get(navn)
+        ut.append({
+            "id": "a-" + re.sub(r"[^a-z0-9]+", "-", navn.lower()).strip("-"),
+            "navn": navn,
+            "roller": roller,
+            "skrivematter": sorted(a["raa"]),
+            "hendelser": h,
+            "aarFra": h[0]["aar"] if h else None,
+            "aarTil": h[-1]["aar"] if h else None,
+            "antall": {k: v for k, v in sorted(antall.items())},
+            "kildeId": kilde["id"] if kilde else None,
+            "kildeGrunnlag": kilde["bevisklasse"] if kilde else None,
+            "grunnlag": (
+                "Rollene er hva registrene sier aktøren gjorde — oppdragsgiver eller "
+                "utførende på undersøkelsene i Vannmiljø, utgiver eller oppdragsgiver på "
+                "rapportene, og for kilder: belagt i Grunnforurensning."
+                + (f' Navnet står som {", ".join("«" + x + "»" for x in sorted(a["raa"])[:3])}'
+                   " i kildene." if len(a["raa"]) > 1 else "")),
+        })
+
+    # Kilden først, så de som bestiller mest, så de som utfører mest.
+    ut.sort(key=lambda a: (
+        0 if "kilde" in a["roller"] else 1,
+        -(a["antall"].get("bestilte", 0) + a["antall"].get("bestilte_rapport", 0)),
+        -(a["antall"].get("utforte", 0) + a["antall"].get("utga", 0)),
+        a["navn"]))
+    return ut
+
+
 def bygg_tidslinje(ctx, kapitler):
     """År for år: hvor mye ble målt, og hvor mye av det er beskrevet.
 
@@ -851,6 +976,7 @@ export { D_TIDSROM } from "./tidsrom";
 export { D_UNDERSOKELSER } from "./undersokelser";
 export { D_RAPPORTNUMRE } from "./rapportnumre";
 export { D_GEOGRAFI } from "./geografi";
+export { D_AKTORER } from "./aktorer";
 """
 
 
@@ -1079,6 +1205,7 @@ def main(omrade_id):
         "id": o["id"],
         "omrade": o["navn"],
         "fane": o.get("fane", o["navn"]),
+        "visning": o.get("visning", "kort"),
         "kommune": o["kommune"],
         "undertittel": o["undertittel"],
         "antall": len(stasjoner),
@@ -1190,6 +1317,26 @@ def main(omrade_id):
  *
  * Tidsaksen. Hver hendelse peker på en rapport, et tiltak eller en kilde i datasettet.""")
     skriv(data, "geografi.ts", "D_GEOGRAFI", geografi, felles_tekst)
+
+    aktorer = bygg_aktorer(omr, {
+        "undersokelser": undersokelser, "rapporter": rapporter,
+        "tiltak": tiltak, "kilder": kilder,
+    })
+    skriv(data, "aktorer.ts", "D_AKTORER", aktorer, felles_tekst + """
+ *
+ * Hvem gjorde hva, og på hvems regning.
+ *
+ * Lista er ikke skrevet. Den faller ut av registrene: alle som står som
+ * oppdragsgiver eller utførende på en undersøkelse i Vannmiljø, på en rapport eller
+ * på et tiltak, pluss kildene som er belagt i Grunnforurensning.
+ *
+ * Rollene er heller ikke satt for hånd. «bestiller», «utfører» og «kilde» er hva
+ * registrene sier aktøren faktisk gjorde. Ingen kalles myndighet eller forurenser
+ * uten at et register sier det — den slutningen overlater vi til leseren.
+ *
+ * skrivematter[] er navneformene aktøren står med i kildene. De er slått sammen med
+ * AKTOR_ALIAS i områdemodulen, og de opprinnelige formene beholdes så
+ * sammenslåingen kan etterprøves.""")
 
     # Fortellingen, for områdene som viser historikken som tekst i stedet for kort.
     historie = bygg_historie(omr, {

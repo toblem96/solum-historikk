@@ -11,11 +11,12 @@
 import * as bjorvika from "./bjorvika";
 import * as vikkilen from "./vikkilen";
 import * as vikkilen2 from "./vikkilen2";
+import * as vikkilen3 from "./vikkilen3";
 
 export { D_M608 } from "./m608";
 export { D_M409 } from "./m409";
 
-export const DATASETT = { vikkilen, bjorvika, vikkilen2 };
+export const DATASETT = { vikkilen, bjorvika, vikkilen2, vikkilen3 };
 
 export type OmradeId = keyof typeof DATASETT;
 

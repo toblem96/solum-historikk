@@ -6,16 +6,14 @@ Spørsmålet flaten stiller er: *hva vet vi egentlig om forurensningshistorikken
 et sjøområde, og hvor vet vi det fra?* Den viser tre faner øverst — bygget av de
 samme registrene etter samme metode.
 
-| | Vikkilen | Bjørvika | Vikkilen · historien |
-|---|---|---|---|
-| Målepunkter | 70 | 176 | 70 |
-| Sedimentmålinger | 2 652 | 4 285 | 2 652 |
-| Referanseregel | bare punktenes egne | bare punktenes egne | + to hopp i referanselistene |
-| Rapporter i lista | 4 | 8 | 30 |
-| Funnet i arkivet | **4 av 4** | **0 av 8** | 30 av 46 siterte |
-| Framstilling | rapportkort | rapportkort | fortelling med referanser |
-| Tiltak | 1 | 4 | 1 |
-| Kilder, hvorav belagt | 7, én belagt | 7, ingen belagt | 7, én belagt |
+| | Vikkilen | Bjørvika | · historien | · aktørene |
+|---|---|---|---|---|
+| Målepunkter | 70 | 176 | 70 | 70 |
+| Referanseregel | punktenes egne | punktenes egne | + to hopp | + to hopp |
+| Rapporter i lista | 4 | 8 | 30 | 30 |
+| Funnet i arkivet | **4 av 4** | **0 av 8** | 30 av 46 siterte | — |
+| Organisert etter | rapport | rapport | tid | ansvar |
+| Framstilling | kort | kort | fortelling + tidslinje | aktørbaner |
 
 **Vikkilen og Bjørvika** viser hva den strengeste regelen gir. I Vikkilen
 navngir punktene fire NIVA-rapporter, og alle fire ligger åpent i Nasjonalt
@@ -130,6 +128,19 @@ et avsnitt, så viser kartet punktene, kildene og tiltakene det handler om; tryk
 avsnitt er beleggene: en rapport, et register, eller et tall regnet ut av
 måledataene. Trykk på en, så felles den ut med hele kjeden — for siterte
 rapporter med sidetall og den faktiske linja fra PDF-en, i begge retninger.
+
+**Aktørfanen organiserer etter ansvar, ikke tid.** Én bane per aktør, tid
+bortover, og et merke for hver ting registrene sier de gjorde: bestilte,
+utførte, ga ut rapport, tiltak. Lista er ikke skrevet av noen — den faller ut av
+oppdragsgiver- og utførende-feltene i Vannmiljø, av rapportenes egne felt, og av
+kildene som er belagt i Grunnforurensning.
+
+Rollene er hva registrene sier aktøren *gjorde*: «bestiller», «utfører»,
+«kilde». Ingen kalles «myndighet» eller «forurenser» i dataene — det er en
+slutning, og den overlates til leseren. Nettopp derfor er funnet verdt noe: i
+Vikkilen er AS Nymo den eneste som både er ført opp som kilde til forurensningen
+og betaler for fem av ti undersøkelser av den. I Bjørvika er mønsteret et annet —
+Oslo Havn bestiller alt, NGI utfører alt.
 
 `Esc` lukker det som står åpent. `?` over kartet henter fram omvisningen igjen.
 

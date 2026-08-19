@@ -582,7 +582,7 @@ export const D_RAPPORTER = [
   "aar": 2008,
   "tittel": "Miljøtekniske undersøkelser ved Nymo as i Vikkilen. Supplerende undersøkelser, risiko- og tiltaksvurdering",
   "utforer": "NIVA",
-  "oppdragsgiver": "AS Nymo, etter pålegg fra SFT",
+  "oppdragsgiver": "AS Nymo",
   "folk": "T. Bakke, J. Håvardstun, K. Næs, M. Schaanning, E. Oug",
   "status": "lest",
   "tillit": "hoy",

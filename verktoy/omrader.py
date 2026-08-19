@@ -49,6 +49,19 @@ OMRADER = {
         "hentet_fra": "vikkilen",
         "serier": ["NIVA-rapport"],
     },
+    "vikkilen3": {
+        "id": "vikkilen3",
+        "navn": "Vikkilen",
+        "fane": "Vikkilen · aktørene",
+        "kommune": "Grimstad",
+        "undertittel": ("Hvem gjorde hva, og på hvems regning — utledet av "
+                        "oppdragsgiver og utførende i registrene"),
+        "senter": (58.3551, 8.6110),
+        "radius_km": 4.0,
+        "hentet_fra": "vikkilen",
+        "visning": "aktorer",
+        "serier": ["NIVA-rapport"],
+    },
 }
 
 

@@ -20,7 +20,7 @@ her, er referanseregelen og fortellingen.
 """
 
 from omrade_vikkilen import (  # noqa: F401
-    BBOX, GIVER_ALIAS, INN, KILDEOPPSETT, KILDETYPE_M350, SERIER, STEDSNAVN,
+    AKTOR_ALIAS, BBOX, GIVER_ALIAS, INN, KILDEOPPSETT, KILDETYPE_M350, SERIER, STEDSNAVN,
     STEDSNAVN_ALIAS, TILTAK, beriker, ekstra_stasjoner, hotspot_tittel,
     innenfor, kilde_punkter, verste_for_kilde,
 )

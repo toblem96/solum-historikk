@@ -46,6 +46,25 @@ STEDSNAVN_ALIAS = {"Bjørvika/Revier": "Revierkaia", "Grønli": "Grønlia",
 # Det er samme oppdragsgiver.
 GIVER_ALIAS = {"oslo havn": "Oslo Havn"}
 
+# Navneformene aktørene står med i registrene, slått sammen. Første treff vinner.
+# De opprinnelige formene beholdes i dataene, så sammenslåingen kan etterprøves.
+AKTOR_ALIAS = [
+    ("oslo havn", "Oslo Havn"),
+    ("oslo kommune", "Oslo kommune"),
+    ("secora", "Secora"),
+    ("ramb", "Rambøll"),
+    ("multiconsult", "Multiconsult"),
+    ("statens vegvesen", "Statens vegvesen"),
+    ("statsbygg", "Statsbygg"),
+    ("selvaag", "Selvaagbygg"),
+    ("norsk hydro", "Norsk Hydro"),
+    ("niva", "NIVA"),
+    ("ngi", "NGI"),
+    ("ngu", "NGU"),
+    ("sft", "SFT"),
+    ("ikke oppgitt", "Ikke oppgitt"),
+]
+
 INN = os.path.join(INN_ROT, "bjorvika")
 
 # Ingen PDF-er er hentet for dette området.

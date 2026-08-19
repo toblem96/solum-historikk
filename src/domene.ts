@@ -204,6 +204,40 @@ export interface Historie {
   merknad: string;
 }
 
+/** Én ting en aktør gjorde, forankret i et år og i punktene den gjaldt. */
+export interface AktorHendelse {
+  aar: number;
+  slag: "bestilte" | "utforte" | "utga" | "bestilte_rapport"
+      | "tiltak_utfort" | "tiltak_bestilt";
+  tekst: string;
+  ref: string;
+  antall: number;
+  punkter: string[];
+}
+
+/**
+ * En aktør, slik registrene beskriver den.
+ *
+ * Rollene er ikke satt for hånd. «bestiller» og «utfører» er hva Vannmiljø og
+ * rapportene sier aktøren gjorde; «kilde» krever at Grunnforurensning eller en
+ * rapport belegger den. Ingen kalles myndighet eller forurenser her — den
+ * slutningen tilhører leseren.
+ */
+export interface Aktor {
+  id: string;
+  navn: string;
+  roller: ("kilde" | "bestiller" | "utfører")[];
+  /** Navneformene aktøren står med i kildene, før sammenslåing. */
+  skrivematter: string[];
+  hendelser: AktorHendelse[];
+  aarFra: number | null;
+  aarTil: number | null;
+  antall: Record<string, number>;
+  kildeId: string | null;
+  kildeGrunnlag: string | null;
+  grunnlag: string;
+}
+
 export interface Undersokelse {
   id: string;
   aar: number;
@@ -223,6 +257,7 @@ interface Datasett {
   TILTAK: Tiltak[];
   HENDELSER: Hendelse[];
   UNDERSOKELSER: Undersokelse[];
+  AKTORER: Aktor[];
   KILDETYPER: { navn: string; antallKilder: number; m350relasjon: string }[];
   STOFF: {
     navn: string; status: string; faktor: number | null;
@@ -254,6 +289,7 @@ function lastDatasett(id: OmradeId): Datasett {
     TILTAK: d.D_TILTAK as unknown as Tiltak[],
     HENDELSER: d.D_HENDELSER as unknown as Hendelse[],
     UNDERSOKELSER: d.D_UNDERSOKELSER as unknown as Undersokelse[],
+    AKTORER: d.D_AKTORER as unknown as Aktor[],
     KILDETYPER: d.D_KILDETYPER as unknown as Datasett["KILDETYPER"],
     STOFF: d.D_STOFF as unknown as Datasett["STOFF"],
     FLYT: d.D_FLYT as unknown as Datasett["FLYT"],
@@ -278,6 +314,7 @@ export let KILDER = D.KILDER;
 export let TILTAK = D.TILTAK;
 export let HENDELSER = D.HENDELSER;
 export let UNDERSOKELSER = D.UNDERSOKELSER;
+export let AKTORER = D.AKTORER;
 export let KILDETYPER = D.KILDETYPER;
 export let STOFF = D.STOFF;
 export let FLYT = D.FLYT;
@@ -296,7 +333,7 @@ export let HISTORIE = D.HISTORIE;
 function byggOmrade(d: Datasett) {
   const m = d.META as {
     id?: string; omrade?: string; kommune?: string; undertittel?: string;
-    antall?: number; antallMalinger?: number;
+    antall?: number; antallMalinger?: number; visning?: string;
   };
   return {
     id: m.id ?? aktivId,
@@ -305,6 +342,7 @@ function byggOmrade(d: Datasett) {
     undertittel: m.undertittel ?? "",
     antallStasjoner: m.antall ?? d.STASJONER.length,
     antallMalinger: m.antallMalinger ?? 0,
+    visning: m.visning ?? "kort",
     senter: d.GEOGRAFI.senter,
   };
 }
@@ -334,6 +372,7 @@ export function settOmrade(id: OmradeId): void {
   TILTAK = D.TILTAK;
   HENDELSER = D.HENDELSER;
   UNDERSOKELSER = D.UNDERSOKELSER;
+  AKTORER = D.AKTORER;
   KILDETYPER = D.KILDETYPER;
   STOFF = D.STOFF;
   FLYT = D.FLYT;
@@ -504,4 +543,45 @@ export function kartFor(a: HistorieAvsnitt): {
 export function stasjonerForAar(aar: number): Stasjon[] {
   const rad = HISTORIE?.tidslinje.find((r) => r.aar === aar);
   return (rad?.punkter ?? []).map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
+}
+
+/** Stasjonene en aktørhendelse gjelder. */
+export function stasjonerForHendelse(h: AktorHendelse): Stasjon[] {
+  return h.punkter.map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
+}
+
+export const finnAktor = (id: string | null) =>
+  id ? AKTORER.find((a) => a.id === id) ?? null : null;
+
+/** Hendelsen bak en id på formen «a-as-nymo#3». */
+export function finnAktorHendelse(id: string | null): AktorHendelse | null {
+  if (!id) return null;
+  const [aid, i] = id.split("#");
+  return finnAktor(aid)?.hendelser[Number(i)] ?? null;
+}
+
+/**
+ * Hendelsene bak et merke i en aktørbane.
+ *
+ * Ett merke er ett år og ett slag — ga NIVA ut fem rapporter i 1986, er det ett
+ * merke, ikke fem oppå hverandre. Gruppa hentes fram igjen her, slik at kartet
+ * og statuslinja viser alt merket dekker.
+ */
+export function hendelsegruppe(id: string | null): AktorHendelse[] {
+  const en = finnAktorHendelse(id);
+  const a = finnAktor((id ?? "").split("#")[0]);
+  if (!en || !a) return en ? [en] : [];
+  return a.hendelser.filter((h) => h.aar === en.aar && h.slag === en.slag);
+}
+
+/** Punktene et merke dekker, uten dubletter. */
+export function stasjonerForGruppe(id: string | null): Stasjon[] {
+  const navn = new Set(hendelsegruppe(id).flatMap((h) => h.punkter));
+  return [...navn].map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
+}
+
+/** Alle punktene en aktør har rørt, på tvers av hendelsene sine. */
+export function stasjonerForAktor(a: Aktor): Stasjon[] {
+  const navn = new Set(a.hendelser.flatMap((h) => h.punkter));
+  return [...navn].map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
 }
