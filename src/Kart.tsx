@@ -15,8 +15,6 @@ import {
   STASJONER, KILDER, TILTAK, klassefarge, klasseNavn, klassetekstfarge,
   finnRapport, finnKilde, finnTiltak, stasjonerForRapport, alleStasjonerForRapport,
   stasjonerForTiltak, stasjonerForKilde, tiltakForRapport, kilderForRapport,
-  finnAvsnitt, kartFor, stasjonerForAar,
-  finnAktor, finnAktorHendelse, stasjonerForAktor, stasjonerForGruppe,
   OMRADE, GEOGRAFI,
   type Stasjon,
 } from "./domene";
@@ -192,66 +190,6 @@ export function Kart() {
         : s.valg.slag === "ingen" && s.forhandsvist
         ? finnRapport(s.forhandsvist)
         : null;
-    /* Aktørbanene: en aktør viser alt hun har rørt, én hendelse bare sine egne
-       punkter. Forhåndsvisning på hendelse, som ellers i flaten. */
-    const hendelse = finnAktorHendelse(
-      s.valg.slag === "aktorHendelse" ? s.valg.id
-        : s.valg.slag === "ingen" ? s.forhandsvistAktor
-        : null);
-    if (hendelse) {
-      const st = stasjonerForGruppe(
-        s.valg.slag === "aktorHendelse" ? s.valg.id : s.forhandsvistAktor);
-      if (st.length) {
-        return { modus: "aktor" as const, uendret: false,
-                 stasjoner: st, tiltak: [], kilder: [] };
-      }
-    }
-    const aktor = s.valg.slag === "aktor" ? finnAktor(s.valg.id) : null;
-    if (aktor) {
-      const st = stasjonerForAktor(aktor);
-      const k = aktor.kildeId ? [finnKilde(aktor.kildeId)].filter(Boolean) : [];
-      if (st.length || k.length) {
-        return { modus: "aktor" as const, uendret: false,
-                 stasjoner: st.length ? st : STASJONER,
-                 tiltak: [], kilder: k as typeof KILDER };
-      }
-    }
-
-    /* Tidslinja: ett år eier kartet mens det er valgt eller pekeren hviler der.
-       Da vises stasjonene som faktisk ble målt det året. */
-    const aar =
-      s.valg.slag === "aar" ? s.valg.aar
-        : s.valg.slag === "ingen" ? s.forhandsvistAar
-        : null;
-    if (aar != null) {
-      const st = stasjonerForAar(aar);
-      if (st.length) {
-        return {
-          modus: "aar" as const, uendret: false,
-          stasjoner: st, tiltak: [], kilder: [],
-        };
-      }
-    }
-
-    /* Fortellingen: ett avsnitt eier kartet mens det er valgt, og mens pekeren
-       hviler over det. Da vises punktene, kildene og tiltakene det handler om. */
-    const avsnitt = finnAvsnitt(
-      s.valg.slag === "avsnitt" ? s.valg.id
-        : s.valg.slag === "ingen" ? s.forhandsvistAvsnitt
-        : null);
-    if (avsnitt) {
-      const k = kartFor(avsnitt);
-      if (k.stasjoner.length || k.kilder.length || k.tiltak.length) {
-        return {
-          modus: "avsnitt" as const,
-          uendret: false,
-          stasjoner: k.stasjoner.length ? k.stasjoner : STASJONER,
-          tiltak: k.tiltak,
-          kilder: k.kilder,
-        };
-      }
-    }
-
     const valgtKilde = s.valg.slag === "kilde" ? finnKilde(s.valg.id) : null;
     const valgtTiltak = s.valg.slag === "tiltak" ? finnTiltak(s.valg.id) : null;
     const oppsummering = s.valg.slag === "oppsummering";
@@ -296,8 +234,7 @@ export function Kart() {
       tiltak: rapporttiltak.length ? rapporttiltak : s.visTiltak ? TILTAK : [],
       kilder: s.visKilder ? (valgtKilde ? [valgtKilde] : KILDER) : valgtKilde ? [valgtKilde] : [],
     };
-  }, [s.valg, s.forhandsvist, s.forhandsvistAvsnitt, s.forhandsvistAar,
-      s.forhandsvistAktor, s.visKilder, s.visTiltak]);
+  }, [s.valg, s.forhandsvist, s.visKilder, s.visTiltak]);
 
   /* Opprett kartet én gang. */
   useEffect(() => {

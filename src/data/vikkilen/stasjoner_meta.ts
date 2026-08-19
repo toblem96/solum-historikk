@@ -4,8 +4,6 @@
 export const D_STASJONER_META = {
  "id": "vikkilen",
  "omrade": "Vikkilen",
- "fane": "Vikkilen",
- "visning": "kort",
  "kommune": "Grimstad",
  "undertittel": "TBT fra verftet AS Nymo — kartlagt 2004, tiltak i 2016, fulgt opp til 2024",
  "antall": 70,

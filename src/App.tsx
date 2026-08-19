@@ -2,18 +2,13 @@ import { useEffect, useMemo, useReducer, useState } from "react";
 import "./stil.css";
 import { Kart, FLISER } from "./Kart";
 import { Liste } from "./Liste";
-import { Historie } from "./Historie";
-import { Aktorbaner } from "./Aktorbaner";
 import { Panel } from "./Panel";
 import { Kildeflyt } from "./Kildeflyt";
 import { Rundtur, harSettRundtur, husk } from "./Rundtur";
 import { TilstandCtx, reducer, startTilstand, type Bakgrunn } from "./tilstand";
 import {
-  STASJONER, KLASSER, KILDER, RAPPORTER, OMRADE_FANER, STANDARD_OMRADE, HISTORIE,
-  OMRADE, finnAktor, finnAktorHendelse, stasjonerForAktor, stasjonerForGruppe,
-  hendelsegruppe,
+  STASJONER, KLASSER, KILDER, RAPPORTER, OMRADE_FANER, STANDARD_OMRADE,
   klassefarge, finnRapport, finnTiltak, alleStasjonerForRapport, kilderForRapport,
-  finnAvsnitt, kartFor, stasjonerForAar,
   settOmrade, type OmradeId,
 } from "./domene";
 
@@ -74,7 +69,6 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
   const valgtRapport = s.valg.slag === "rapport" ? finnRapport(s.valg.id) : null;
   const valgtTiltak = s.valg.slag === "tiltak" ? finnTiltak(s.valg.id) : null;
   const oppsummering = s.valg.slag === "oppsummering";
-  const valgtAvsnitt = s.valg.slag === "avsnitt" ? finnAvsnitt(s.valg.id) : null;
 
   /* Punktene rapporten viser — dens egne pluss dem den bringer selv. */
   const rapportPunkter = valgtRapport ? alleStasjonerForRapport(valgtRapport) : [];
@@ -85,44 +79,20 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
     ? valgtTiltak.punkter.length
     : STASJONER.length;
 
-  /* Legenden teller det kartet faktisk viser — ellers står den og lyver om et
-     utsnitt den ikke gjelder for. */
-  const valgtAar = s.valg.slag === "aar" ? s.valg.aar : null;
-  const valgtHendelse = s.valg.slag === "aktorHendelse" ? finnAktorHendelse(s.valg.id) : null;
-  const valgtAktor = s.valg.slag === "aktor" ? finnAktor(s.valg.id) : null;
-  const avsnittPunkter = valgtAvsnitt
-    ? kartFor(valgtAvsnitt).stasjoner
-    : valgtAar != null
-    ? stasjonerForAar(valgtAar)
-    : valgtHendelse
-    ? stasjonerForGruppe(s.valg.slag === "aktorHendelse" ? s.valg.id : null)
-    : valgtAktor
-    ? stasjonerForAktor(valgtAktor)
-    : [];
-
   const fordeling = useMemo(() => {
     const tiltakets = valgtTiltak
       ? (valgtTiltak.punkter.map((n) => STASJONER.find((x) => x.navn === n))
           .filter(Boolean) as typeof STASJONER)
       : [];
-    const liste = avsnittPunkter.length
-      ? avsnittPunkter
-      : rapportPunkter.length
-      ? rapportPunkter
-      : tiltakets.length
-      ? tiltakets
-      : STASJONER;
+    const liste = rapportPunkter.length ? rapportPunkter : tiltakets.length ? tiltakets : STASJONER;
     const m = new Map<number | null, number>();
     for (const st of liste) m.set(st.klasse, (m.get(st.klasse) ?? 0) + 1);
     return m;
-  }, [valgtRapport, valgtTiltak, s.valg]);
+  }, [valgtRapport, valgtTiltak]);
 
   /* Lista viker for panelet — det er panelet som trenger plassen, og kartet får
      resten. «Tilbake til lista» i panelet henter den fram igjen. */
-  /* Avsnitt og år styrer bare kartet — fortellingen skal bli stående, ellers
-     mister man plassen sin i teksten hver gang man ser på noe. */
-  const panelApent = !["ingen", "avsnitt", "aar", "aktor", "aktorHendelse"]
-    .includes(s.valg.slag);
+  const panelApent = s.valg.slag !== "ingen";
 
   const flytRapport = s.flyt?.slag === "rapport" ? finnRapport(s.flyt.id) : null;
 
@@ -158,31 +128,9 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
             </div>
           </div>
 
-          {(valgtRapport || valgtTiltak || oppsummering || valgtAvsnitt
-            || valgtAar != null || valgtHendelse || valgtAktor) && (
+          {(valgtRapport || valgtTiltak || oppsummering) && (
             <div className="kartstatus">
-              {valgtHendelse ? (
-                <>
-                  Kartet viser <b>{valgtHendelse.aar}</b> — {valgtHendelse.tekst}.
-                </>
-              ) : valgtAktor ? (
-                <>
-                  Kartet viser alt <b>{valgtAktor.navn}</b> har rørt —{" "}
-                  {avsnittPunkter.length} punkter.
-                </>
-              ) : valgtAar != null ? (
-                <>
-                  Kartet viser <b>{valgtAar}</b> — {avsnittPunkter.length}{" "}
-                  {avsnittPunkter.length === 1 ? "stasjon" : "stasjoner"} målt det året.
-                </>
-              ) : valgtAvsnitt ? (
-                <>
-                  Kartet viser <b>det avsnittet handler om</b> — {avsnittPunkter.length}{" "}
-                  {avsnittPunkter.length === 1 ? "punkt" : "punkter"}
-                  {(valgtAvsnitt.kilder?.length ?? 0) > 0 && <>, {valgtAvsnitt.kilder!.length} kilde</>}
-                  {(valgtAvsnitt.tiltak?.length ?? 0) > 0 && <>, {valgtAvsnitt.tiltak!.length} tiltak</>}.
-                </>
-              ) : oppsummering ? (
+              {oppsummering ? (
                 <>Kartet viser <b>hele området</b> — {STASJONER.length} punkter, {KILDER.length} kilder.</>
               ) : valgtRapport && rapportPunkter.length === 0 ? (
                 <>
@@ -227,10 +175,6 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
 
         {panelApent ? (
           <div className="panelvert bred"><Panel /></div>
-        ) : OMRADE.visning === "aktorer" ? (
-          <div className="listevert historievert"><Aktorbaner /></div>
-        ) : HISTORIE ? (
-          <div className="listevert historievert"><Historie /></div>
         ) : (
           <div className="listevert"><Liste /></div>
         )}

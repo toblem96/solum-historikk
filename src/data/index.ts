@@ -10,13 +10,11 @@
  */
 import * as bjorvika from "./bjorvika";
 import * as vikkilen from "./vikkilen";
-import * as vikkilen2 from "./vikkilen2";
-import * as vikkilen3 from "./vikkilen3";
 
 export { D_M608 } from "./m608";
 export { D_M409 } from "./m409";
 
-export const DATASETT = { vikkilen, bjorvika, vikkilen2, vikkilen3 };
+export const DATASETT = { vikkilen, bjorvika };
 
 export type OmradeId = keyof typeof DATASETT;
 
@@ -29,13 +27,11 @@ export const STANDARD_OMRADE: OmradeId = "vikkilen";
  */
 export const OMRADE_FANER = (Object.keys(DATASETT) as OmradeId[]).map((id) => {
   const m = DATASETT[id].D_STASJONER_META as unknown as {
-    omrade?: string; fane?: string; kommune?: string; antall?: number;
+    omrade?: string; kommune?: string; antall?: number;
   };
   return {
     id,
-    /* Fanen kan ha et eget navn: to av områdene er samme sted, og «Vikkilen»
-       to ganger sier ikke hva som skiller dem. */
-    navn: m.fane ?? m.omrade ?? id,
+    navn: m.omrade ?? id,
     kommune: m.kommune ?? "",
     antallStasjoner: m.antall ?? 0,
   };

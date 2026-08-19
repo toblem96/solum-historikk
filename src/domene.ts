@@ -97,15 +97,6 @@ export interface Rapport {
   /** Punkter rapporten bringer som ikke finnes i Vannmiljø. */
   nyePunkter: string[];
   /** Hvordan rapporten ble funnet: navngitt av et punkt, eller via sitatgrafen. */
-  /** Hvor mange hopp ut i referanselistene rapporten ble funnet. */
-  hopp?: number;
-  /** Sitatene som førte hit — retning, motpart, side og linja det står på. */
-  sitatBelegg?: {
-    retning: string; motpart: string; side: number;
-    sitat: string; iReferanseliste: boolean;
-  }[];
-  /** Sann når rapporten ikke finnes i arkivet, men PDF-en gjør det. */
-  ikkeIArkivet?: boolean;
   funnetVia: "punkt" | "sitat";
   /** Én setning om beleggets art, vist på kortet og i panelet. */
   belegg: string;
@@ -153,91 +144,6 @@ export interface Hendelse {
   kildeId?: string | null;
 }
 
-/** Ett belegg bak et utsagn i fortellingen. */
-export interface Belegg {
-  slag: "rapport" | "register" | "maaling";
-  /** Rapport-id, registernavn, eller navnet på et utregnet tall. */
-  ref: string;
-  /** Hvor i kilden det står — sidetall, kapittel, feltnavn. */
-  sted?: string;
-}
-
-export interface HistorieAvsnitt {
-  tekst: string;
-  belegg: Belegg[];
-  punkter?: string[];
-  kilder?: string[];
-  tiltak?: string[];
-}
-
-export interface HistorieKapittel {
-  id: string;
-  aarFra: number;
-  aarTil: number;
-  overskrift: string;
-  avsnitt: HistorieAvsnitt[];
-}
-
-/** Én rad på tidslinja: ett år, med hva som ble målt og hva som er beskrevet. */
-export interface TidslinjeAar {
-  aar: number;
-  /** Stasjoner målt dette året. */
-  malt: number;
-  /** Hvor mange av dem som er navngitt av minst én rapport. */
-  beskrevet: number;
-  punkter: string[];
-  rapporter: string[];
-  kapitler: string[];
-  tiltak: string[];
-  /** Antall år uten noe som helst rett før denne raden. */
-  hopp: number;
-}
-
-export interface Historie {
-  innledning: string;
-  kapitler: HistorieKapittel[];
-  tidslinje: TidslinjeAar[];
-  /** Tallene i teksten, med regnestykket bak hvert av dem. */
-  tall: Record<string, { verdi: string | number; enhet: string; forklaring: string }>;
-  brukteRapporter: string[];
-  antallRapporter: number;
-  merknad: string;
-}
-
-/** Én ting en aktør gjorde, forankret i et år og i punktene den gjaldt. */
-export interface AktorHendelse {
-  aar: number;
-  slag: "bestilte" | "utforte" | "utga" | "bestilte_rapport"
-      | "tiltak_utfort" | "tiltak_bestilt";
-  tekst: string;
-  ref: string;
-  antall: number;
-  punkter: string[];
-}
-
-/**
- * En aktør, slik registrene beskriver den.
- *
- * Rollene er ikke satt for hånd. «bestiller» og «utfører» er hva Vannmiljø og
- * rapportene sier aktøren gjorde; «kilde» krever at Grunnforurensning eller en
- * rapport belegger den. Ingen kalles myndighet eller forurenser her — den
- * slutningen tilhører leseren.
- */
-export interface Aktor {
-  id: string;
-  navn: string;
-  roller: ("kilde" | "bestiller" | "utfører")[];
-  /** Navneformene aktøren står med i kildene, før sammenslåing. */
-  skrivematter: string[];
-  hendelser: AktorHendelse[];
-  aarFra: number | null;
-  aarTil: number | null;
-  antall: Record<string, number>;
-  kildeId: string | null;
-  kildeGrunnlag: string | null;
-  grunnlag: string;
-}
-
 export interface Undersokelse {
   id: string;
   aar: number;
@@ -257,7 +163,6 @@ interface Datasett {
   TILTAK: Tiltak[];
   HENDELSER: Hendelse[];
   UNDERSOKELSER: Undersokelse[];
-  AKTORER: Aktor[];
   KILDETYPER: { navn: string; antallKilder: number; m350relasjon: string }[];
   STOFF: {
     navn: string; status: string; faktor: number | null;
@@ -270,8 +175,6 @@ interface Datasett {
   META: Record<string, unknown>;
   TIDSROM: { fra: number; til: number; merknad?: string };
   MALINGER_PER_AAR: Record<string, number>;
-  /** Bare områdene som forteller historikken som tekst har denne. */
-  HISTORIE: Historie | null;
   GEOGRAFI: {
     bbox: { v: number; s: number; o: number; n: number };
     senter: { lat: number; lng: number };
@@ -289,7 +192,6 @@ function lastDatasett(id: OmradeId): Datasett {
     TILTAK: d.D_TILTAK as unknown as Tiltak[],
     HENDELSER: d.D_HENDELSER as unknown as Hendelse[],
     UNDERSOKELSER: d.D_UNDERSOKELSER as unknown as Undersokelse[],
-    AKTORER: d.D_AKTORER as unknown as Aktor[],
     KILDETYPER: d.D_KILDETYPER as unknown as Datasett["KILDETYPER"],
     STOFF: d.D_STOFF as unknown as Datasett["STOFF"],
     FLYT: d.D_FLYT as unknown as Datasett["FLYT"],
@@ -298,9 +200,6 @@ function lastDatasett(id: OmradeId): Datasett {
     META: d.D_STASJONER_META as unknown as Record<string, unknown>,
     TIDSROM: d.D_TIDSROM as unknown as Datasett["TIDSROM"],
     MALINGER_PER_AAR: d.D_MALINGER_PER_AAR as unknown as Record<string, number>,
-    HISTORIE: ("D_HISTORIE" in d
-      ? (d as { D_HISTORIE: unknown }).D_HISTORIE as Historie
-      : null),
     GEOGRAFI: d.D_GEOGRAFI as unknown as Datasett["GEOGRAFI"],
   };
 }
@@ -314,7 +213,6 @@ export let KILDER = D.KILDER;
 export let TILTAK = D.TILTAK;
 export let HENDELSER = D.HENDELSER;
 export let UNDERSOKELSER = D.UNDERSOKELSER;
-export let AKTORER = D.AKTORER;
 export let KILDETYPER = D.KILDETYPER;
 export let STOFF = D.STOFF;
 export let FLYT = D.FLYT;
@@ -324,7 +222,6 @@ export let META = D.META;
 export let TIDSROM = D.TIDSROM;
 export let MALINGER_PER_AAR = D.MALINGER_PER_AAR;
 export let GEOGRAFI = D.GEOGRAFI;
-export let HISTORIE = D.HISTORIE;
 
 /**
  * Området flaten handler om. Alt her kommer fra datafilene, slik at et bytte av
@@ -333,7 +230,7 @@ export let HISTORIE = D.HISTORIE;
 function byggOmrade(d: Datasett) {
   const m = d.META as {
     id?: string; omrade?: string; kommune?: string; undertittel?: string;
-    antall?: number; antallMalinger?: number; visning?: string;
+    antall?: number; antallMalinger?: number;
   };
   return {
     id: m.id ?? aktivId,
@@ -342,7 +239,6 @@ function byggOmrade(d: Datasett) {
     undertittel: m.undertittel ?? "",
     antallStasjoner: m.antall ?? d.STASJONER.length,
     antallMalinger: m.antallMalinger ?? 0,
-    visning: m.visning ?? "kort",
     senter: d.GEOGRAFI.senter,
   };
 }
@@ -372,7 +268,6 @@ export function settOmrade(id: OmradeId): void {
   TILTAK = D.TILTAK;
   HENDELSER = D.HENDELSER;
   UNDERSOKELSER = D.UNDERSOKELSER;
-  AKTORER = D.AKTORER;
   KILDETYPER = D.KILDETYPER;
   STOFF = D.STOFF;
   FLYT = D.FLYT;
@@ -382,7 +277,6 @@ export function settOmrade(id: OmradeId): void {
   TIDSROM = D.TIDSROM;
   MALINGER_PER_AAR = D.MALINGER_PER_AAR;
   GEOGRAFI = D.GEOGRAFI;
-  HISTORIE = D.HISTORIE;
   OMRADE = byggOmrade(D);
   STASJON_ETTER_NAVN = new Map(D.STASJONER.map((s) => [s.navn, s]));
   AAR_FRA = D.TIDSROM.fra;
@@ -505,83 +399,4 @@ export function byggListe(): Rapport[] {
 /** Undersøkelser uten en rapport i datasettet. */
 export function undersokelserUtenRapport(): Undersokelse[] {
   return UNDERSOKELSER.filter((u) => !u.rapportId || !finnRapport(u.rapportId));
-}
-
-/* ── Fortellingen ─────────────────────────────────────────────────────── */
-
-/** Id-en et avsnitt får: kapittelet pluss plassen i det. */
-export const avsnittId = (kapittel: string, i: number) => `${kapittel}#${i}`;
-
-export function finnAvsnitt(id: string | null): HistorieAvsnitt | null {
-  if (!id || !HISTORIE) return null;
-  const [kap, i] = id.split("#");
-  return HISTORIE.kapitler.find((k) => k.id === kap)?.avsnitt[Number(i)] ?? null;
-}
-
-/**
- * Hva kartet skal vise for ett avsnitt.
- *
- * Nevner avsnittet punkter, er det de punktene. Nevner det bare en kilde eller
- * et tiltak, tar vi punktene som hører til dem — ellers ville kartet blitt tomt
- * for et avsnitt som handler om noe stedfestet.
- */
-export function kartFor(a: HistorieAvsnitt): {
-  stasjoner: Stasjon[]; kilder: Kilde[]; tiltak: Tiltak[];
-} {
-  const kilder = (a.kilder ?? []).map((id) => finnKilde(id)).filter(Boolean) as Kilde[];
-  const tiltak = (a.tiltak ?? []).map((id) => finnTiltak(id)).filter(Boolean) as Tiltak[];
-  const navn = new Set(a.punkter ?? []);
-  if (!navn.size) {
-    for (const t of tiltak) t.punkter.forEach((n) => navn.add(n));
-    for (const k of kilder) k.koblet.forEach((n) => navn.add(n));
-  }
-  const stasjoner = [...navn].map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
-  return { stasjoner, kilder, tiltak };
-}
-
-/** Stasjonene som ble målt et gitt år, fra tidslinja. */
-export function stasjonerForAar(aar: number): Stasjon[] {
-  const rad = HISTORIE?.tidslinje.find((r) => r.aar === aar);
-  return (rad?.punkter ?? []).map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
-}
-
-/** Stasjonene en aktørhendelse gjelder. */
-export function stasjonerForHendelse(h: AktorHendelse): Stasjon[] {
-  return h.punkter.map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
-}
-
-export const finnAktor = (id: string | null) =>
-  id ? AKTORER.find((a) => a.id === id) ?? null : null;
-
-/** Hendelsen bak en id på formen «a-as-nymo#3». */
-export function finnAktorHendelse(id: string | null): AktorHendelse | null {
-  if (!id) return null;
-  const [aid, i] = id.split("#");
-  return finnAktor(aid)?.hendelser[Number(i)] ?? null;
-}
-
-/**
- * Hendelsene bak et merke i en aktørbane.
- *
- * Ett merke er ett år og ett slag — ga NIVA ut fem rapporter i 1986, er det ett
- * merke, ikke fem oppå hverandre. Gruppa hentes fram igjen her, slik at kartet
- * og statuslinja viser alt merket dekker.
- */
-export function hendelsegruppe(id: string | null): AktorHendelse[] {
-  const en = finnAktorHendelse(id);
-  const a = finnAktor((id ?? "").split("#")[0]);
-  if (!en || !a) return en ? [en] : [];
-  return a.hendelser.filter((h) => h.aar === en.aar && h.slag === en.slag);
-}
-
-/** Punktene et merke dekker, uten dubletter. */
-export function stasjonerForGruppe(id: string | null): Stasjon[] {
-  const navn = new Set(hendelsegruppe(id).flatMap((h) => h.punkter));
-  return [...navn].map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
-}
-
-/** Alle punktene en aktør har rørt, på tvers av hendelsene sine. */
-export function stasjonerForAktor(a: Aktor): Stasjon[] {
-  const navn = new Set(a.hendelser.flatMap((h) => h.punkter));
-  return [...navn].map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
 }

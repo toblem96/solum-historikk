@@ -35,24 +35,6 @@ STEDSNAVN_ALIAS = {"Groose": "Groosefjorden"}
 # AS Nymo står oppført på fire måter i Vannmiljø. Det er samme oppdragsgiver.
 GIVER_ALIAS = {"nymo": "AS Nymo"}
 
-# Navneformene aktørene står med i registrene, slått sammen. Første treff på
-# delstrengen vinner, så rekkefølgen betyr noe: «Aust-Agder fylkeskommune» og
-# «Fylkesmannen i Aust-Agder» er to forskjellige organer og må skilles før
-# «aust-agder» får slå til på begge. De opprinnelige formene beholdes i dataene,
-# slik at sammenslåingen kan etterprøves.
-AKTOR_ALIAS = [
-    ("nymo", "AS Nymo"),
-    ("fylkesmannen", "Fylkesmannen i Aust-Agder"),
-    ("fylkeskommune", "Aust-Agder fylkeskommune"),
-    ("grimstad kommune", "Grimstad kommune"),
-    ("sft", "SFT"),
-    ("miljødirektorat", "Miljødirektoratet"),
-    ("niva", "NIVA"),
-    ("multiconsult", "Multiconsult"),
-    ("norsk hydro", "Norsk Hydro"),
-    ("ikke oppgitt", "Ikke oppgitt"),
-]
-
 # Vikkilen-PDF-ene ligger i hentet/ fra før av, ikke under hentet/vikkilen/.
 INN = INN_ROT
 
@@ -125,7 +107,7 @@ RAPPORTOPPSETT = {
         ],
     },
     "5669": {
-        "oppdragsgiver": "AS Nymo",
+        "oppdragsgiver": "AS Nymo, etter pålegg fra SFT",
         "kildeIder": ["K-01"],
         "koblingstekst": (
             "16 stasjoner har «Miljøgifter i sedimenter 2008. NIVA-rapport OR-5669.» i "

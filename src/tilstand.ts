@@ -20,26 +20,10 @@ export interface Tilstand {
     | { slag: "rapport"; id: string }
     | { slag: "kilde"; id: string }
     | { slag: "tiltak"; id: string }
-    | { slag: "stasjon"; navn: string }
-    /* Ett avsnitt i fortellingen. Bare områdene som viser historikk som tekst
-       bruker denne — kartet viser da punktene, kildene og tiltakene avsnittet
-       handler om, og fortellingen blir stående. */
-    | { slag: "avsnitt"; id: string }
-    /* Ett år på tidslinja. Kartet viser stasjonene som ble målt det året. */
-    | { slag: "aar"; aar: number }
-    /* En aktør, eller én ting aktøren gjorde. «id» på hendelsen er
-       aktør-id-en, en firkantkrøll og plassen i hendelseslista. */
-    | { slag: "aktor"; id: string }
-    | { slag: "aktorHendelse"; id: string };
+    | { slag: "stasjon"; navn: string };
   /** Rapporten musepekeren hviler over. Kartet viser den så lenge ingenting
      annet er valgt — du ser hva kortet gjelder før du klikker. */
   forhandsvist: string | null;
-  /** Avsnittet musepekeren hviler over, på samme måte som forhandsvist. */
-  forhandsvistAvsnitt: string | null;
-  /** Året musepekeren hviler over på tidslinja. */
-  forhandsvistAar: number | null;
-  /** Aktørhendelsen musepekeren hviler over. */
-  forhandsvistAktor: string | null;
   visKilder: boolean;
   visTiltak: boolean;
   bakgrunn: Bakgrunn;
@@ -52,9 +36,6 @@ export interface Tilstand {
 export const startTilstand: Tilstand = {
   valg: { slag: "ingen" },
   forhandsvist: null,
-  forhandsvistAvsnitt: null,
-  forhandsvistAar: null,
-  forhandsvistAktor: null,
   visKilder: false,
   visTiltak: true,
   bakgrunn: "graatone",
@@ -70,13 +51,6 @@ export type Handling =
   | { type: "velgKilde"; id: string | null }
   | { type: "velgTiltak"; id: string | null }
   | { type: "velgStasjon"; navn: string | null }
-  | { type: "velgAvsnitt"; id: string | null }
-  | { type: "forhandsvisAvsnitt"; id: string | null }
-  | { type: "velgAar"; aar: number | null }
-  | { type: "forhandsvisAar"; aar: number | null }
-  | { type: "velgAktor"; id: string | null }
-  | { type: "velgAktorHendelse"; id: string | null }
-  | { type: "forhandsvisAktor"; id: string | null }
   | { type: "tomtValg" }
   | { type: "veksle"; felt: "visKilder" | "visTiltak" }
   | { type: "settBakgrunn"; bakgrunn: Bakgrunn }
@@ -114,48 +88,8 @@ export function reducer(s: Tilstand, h: Handling): Tilstand {
     case "velgStasjon":
       if (!h.navn) return { ...s, valg: { slag: "ingen" } };
       return { ...s, valg: { slag: "stasjon", navn: h.navn } };
-    case "velgAvsnitt":
-      if (!h.id) return { ...s, valg: { slag: "ingen" } };
-      /* Avsnittet bestemmer kartet, så både kilde- og tiltakslaget må stå på —
-         ellers peker teksten på noe kartet ikke tegner. */
-      return {
-        ...s,
-        valg: { slag: "avsnitt", id: h.id },
-        forhandsvistAvsnitt: null,
-        visKilder: true,
-        visTiltak: true,
-        zoomOnske: s.zoomOnske + 1,
-      };
-    case "forhandsvisAvsnitt":
-      if (s.forhandsvistAvsnitt === h.id) return s;
-      return { ...s, forhandsvistAvsnitt: h.id };
-    case "velgAar":
-      if (h.aar == null) return { ...s, valg: { slag: "ingen" } };
-      return {
-        ...s,
-        valg: { slag: "aar", aar: h.aar },
-        forhandsvistAar: null,
-        zoomOnske: s.zoomOnske + 1,
-      };
-    case "forhandsvisAar":
-      if (s.forhandsvistAar === h.aar) return s;
-      return { ...s, forhandsvistAar: h.aar };
-    case "velgAktor":
-      if (!h.id) return { ...s, valg: { slag: "ingen" } };
-      return { ...s, valg: { slag: "aktor", id: h.id }, forhandsvistAktor: null,
-               visKilder: true, zoomOnske: s.zoomOnske + 1 };
-    case "velgAktorHendelse":
-      if (!h.id) return { ...s, valg: { slag: "ingen" } };
-      return { ...s, valg: { slag: "aktorHendelse", id: h.id }, forhandsvistAktor: null,
-               zoomOnske: s.zoomOnske + 1 };
-    case "forhandsvisAktor":
-      if (s.forhandsvistAktor === h.id) return s;
-      return { ...s, forhandsvistAktor: h.id };
     case "tomtValg":
-      return {
-        ...s, valg: { slag: "ingen" },
-        forhandsvistAvsnitt: null, forhandsvistAar: null, forhandsvistAktor: null,
-      };
+      return { ...s, valg: { slag: "ingen" } };
     case "veksle":
       return { ...s, [h.felt]: !s[h.felt] } as Tilstand;
     case "settBakgrunn":
