@@ -111,7 +111,20 @@ atskilte grupper, tegnes ett omriss per gruppe — én innhylling over alt ville
 påstått at havnebassenget imellom også var tiltaksområde. Det står i
 verktøytipset på flaten.
 
-**Historikkfanen har ingen kort.** Der leses historien ovenfra og ned. Hvil over
+**Historikkfanen åpner med tidslinja.** Den er ikke en liste over hendelser, men
+spørsmålet flaten stiller, tegnet som ett bilde. Ryggraden er året. Til venstre
+ligger rapportene, én prikk per rapport utgitt det året. Til høyre ligger
+målingene: stolpen er stasjonene som ble målt, og den mørke delen er de av dem en
+rapport faktisk navngir.
+
+Da blir begge hullene synlige, og de peker hver sin vei. Prikker uten stolpe er
+rapporter om år registeret ikke har målinger fra — 1986-rapportene beskriver
+feltarbeid fra 1982–85, mens Vannmiljø starter i 1990. Stolpe uten mørk del er
+det motsatte: noen målte, og ingen rapport beskriver det. 2016 er tiltaksåret —
+ni stasjoner, ingen rapport. Hvil over en rad for tallene, trykk for å se året i
+kartet.
+
+**Under tidslinja leses historien ovenfra og ned.** Hvil over
 et avsnitt, så viser kartet punktene, kildene og tiltakene det handler om; trykk
 «vis i kartet», så blir det stående og kartet zoomer dit. Merkelappene under hvert
 avsnitt er beleggene: en rapport, et register, eller et tall regnet ut av

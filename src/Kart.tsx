@@ -15,7 +15,7 @@ import {
   STASJONER, KILDER, TILTAK, klassefarge, klasseNavn, klassetekstfarge,
   finnRapport, finnKilde, finnTiltak, stasjonerForRapport, alleStasjonerForRapport,
   stasjonerForTiltak, stasjonerForKilde, tiltakForRapport, kilderForRapport,
-  finnAvsnitt, kartFor,
+  finnAvsnitt, kartFor, stasjonerForAar,
   OMRADE, GEOGRAFI,
   type Stasjon,
 } from "./domene";
@@ -191,6 +191,22 @@ export function Kart() {
         : s.valg.slag === "ingen" && s.forhandsvist
         ? finnRapport(s.forhandsvist)
         : null;
+    /* Tidslinja: ett år eier kartet mens det er valgt eller pekeren hviler der.
+       Da vises stasjonene som faktisk ble målt det året. */
+    const aar =
+      s.valg.slag === "aar" ? s.valg.aar
+        : s.valg.slag === "ingen" ? s.forhandsvistAar
+        : null;
+    if (aar != null) {
+      const st = stasjonerForAar(aar);
+      if (st.length) {
+        return {
+          modus: "aar" as const, uendret: false,
+          stasjoner: st, tiltak: [], kilder: [],
+        };
+      }
+    }
+
     /* Fortellingen: ett avsnitt eier kartet mens det er valgt, og mens pekeren
        hviler over det. Da vises punktene, kildene og tiltakene det handler om. */
     const avsnitt = finnAvsnitt(
@@ -254,7 +270,8 @@ export function Kart() {
       tiltak: rapporttiltak.length ? rapporttiltak : s.visTiltak ? TILTAK : [],
       kilder: s.visKilder ? (valgtKilde ? [valgtKilde] : KILDER) : valgtKilde ? [valgtKilde] : [],
     };
-  }, [s.valg, s.forhandsvist, s.forhandsvistAvsnitt, s.visKilder, s.visTiltak]);
+  }, [s.valg, s.forhandsvist, s.forhandsvistAvsnitt, s.forhandsvistAar,
+      s.visKilder, s.visTiltak]);
 
   /* Opprett kartet én gang. */
   useEffect(() => {

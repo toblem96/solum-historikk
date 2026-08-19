@@ -25,6 +25,7 @@ import {
   type Belegg, type HistorieAvsnitt, type Rapport,
   avsnittId,
 } from "./domene";
+import { Tidslinje } from "./Tidslinje";
 import { useTilstand } from "./tilstand";
 
 const REGISTERNAVN: Record<string, string> = {
@@ -185,6 +186,14 @@ export function Historie() {
     };
   }, [h]);
 
+  /* Tidslinja er oversikten; kapitlene er teksten. Trykker du på et kapittel
+     der oppe, ruller vi ned til det i stedet for å åpne noe nytt. */
+  const tilKapittel = (id: string) => {
+    document.getElementById(`kap-${id}`)?.scrollIntoView({
+      behavior: "smooth", block: "start",
+    });
+  };
+
   if (!h) return null;
 
   return (
@@ -197,8 +206,10 @@ export function Historie() {
         </button>
       </div>
 
+      <Tidslinje paaKapittel={tilKapittel} />
+
       {h.kapitler.map((k) => (
-        <section key={k.id} className="kapittel">
+        <section key={k.id} id={`kap-${k.id}`} className="kapittel">
           <div className="kap-hode">
             <span className="kap-aar">
               {k.aarFra}{k.aarTil !== k.aarFra ? `–${k.aarTil}` : ""}

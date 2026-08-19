@@ -178,9 +178,25 @@ export interface HistorieKapittel {
   avsnitt: HistorieAvsnitt[];
 }
 
+/** Én rad på tidslinja: ett år, med hva som ble målt og hva som er beskrevet. */
+export interface TidslinjeAar {
+  aar: number;
+  /** Stasjoner målt dette året. */
+  malt: number;
+  /** Hvor mange av dem som er navngitt av minst én rapport. */
+  beskrevet: number;
+  punkter: string[];
+  rapporter: string[];
+  kapitler: string[];
+  tiltak: string[];
+  /** Antall år uten noe som helst rett før denne raden. */
+  hopp: number;
+}
+
 export interface Historie {
   innledning: string;
   kapitler: HistorieKapittel[];
+  tidslinje: TidslinjeAar[];
   /** Tallene i teksten, med regnestykket bak hvert av dem. */
   tall: Record<string, { verdi: string | number; enhet: string; forklaring: string }>;
   brukteRapporter: string[];
@@ -482,4 +498,10 @@ export function kartFor(a: HistorieAvsnitt): {
   }
   const stasjoner = [...navn].map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
   return { stasjoner, kilder, tiltak };
+}
+
+/** Stasjonene som ble målt et gitt år, fra tidslinja. */
+export function stasjonerForAar(aar: number): Stasjon[] {
+  const rad = HISTORIE?.tidslinje.find((r) => r.aar === aar);
+  return (rad?.punkter ?? []).map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
 }

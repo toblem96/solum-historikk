@@ -414,6 +414,591 @@ export const D_HISTORIE = {
    ]
   }
  ],
+ "tidslinje": [
+  {
+   "aar": 1982,
+   "malt": 0,
+   "beskrevet": 0,
+   "punkter": [],
+   "rapporter": [],
+   "kapitler": [
+    "k-1986"
+   ],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1985,
+   "malt": 0,
+   "beskrevet": 0,
+   "punkter": [],
+   "rapporter": [
+    "r-niva1815"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 2
+  },
+  {
+   "aar": 1986,
+   "malt": 0,
+   "beskrevet": 0,
+   "punkter": [],
+   "rapporter": [
+    "r-niva1866",
+    "r-niva1898",
+    "r-niva1919",
+    "r-niva1920",
+    "r-niva1939"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1987,
+   "malt": 0,
+   "beskrevet": 0,
+   "punkter": [],
+   "rapporter": [
+    "r-niva1978"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1988,
+   "malt": 0,
+   "beskrevet": 0,
+   "punkter": [],
+   "rapporter": [
+    "r-niva2103",
+    "r-niva2173"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1990,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 1
+  },
+  {
+   "aar": 1991,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1992,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva2686"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1993,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1994,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva3154"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1995,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva3347"
+   ],
+   "kapitler": [
+    "k-1997"
+   ],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1996,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva3378"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1997,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva3622"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1998,
+   "malt": 4,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1",
+    "Grimstad havn, S2",
+    "Grimstad havn, S3",
+    "Grimstad, Vikkilen S1"
+   ],
+   "rapporter": [
+    "r-niva3869",
+    "r-niva3908"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 1999,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva4052"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2000,
+   "malt": 3,
+   "beskrevet": 0,
+   "punkter": [
+    "Barselkilen",
+    "Grimstad BR1",
+    "Grømbukt"
+   ],
+   "rapporter": [],
+   "kapitler": [
+    "k-2002"
+   ],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2001,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva4302"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2002,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva4473",
+    "r-niva4548"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2003,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2004,
+   "malt": 15,
+   "beskrevet": 14,
+   "punkter": [
+    "Grimstad BR1",
+    "Vikkilen 12",
+    "Vikkilen 13",
+    "Vikkilen 14",
+    "Vikkilen 15",
+    "Vikkilen 16",
+    "Vikkilen 2",
+    "Vikkilen 20",
+    "Vikkilen 22",
+    "Vikkilen 24",
+    "Vikkilen 26",
+    "Vikkilen 3",
+    "Vikkilen 4",
+    "Vikkilen 6",
+    "Vikkilen 8"
+   ],
+   "rapporter": [],
+   "kapitler": [
+    "k-2005"
+   ],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2005,
+   "malt": 4,
+   "beskrevet": 3,
+   "punkter": [
+    "Grimstad BR1",
+    "Vikkilen 1",
+    "Vikkilen 15",
+    "Vikkilen 16"
+   ],
+   "rapporter": [
+    "r-niva5040"
+   ],
+   "kapitler": [
+    "k-2013"
+   ],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2006,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva5200"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2007,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2008,
+   "malt": 17,
+   "beskrevet": 16,
+   "punkter": [
+    "Grimstad BR1",
+    "Vikkilen 30",
+    "Vikkilen 31",
+    "Vikkilen 32",
+    "Vikkilen 33",
+    "Vikkilen 34",
+    "Vikkilen 35",
+    "Vikkilen 36",
+    "Vikkilen 37",
+    "Vikkilen 38",
+    "Vikkilen 39",
+    "Vikkilen 40",
+    "Vikkilen B01",
+    "Vikkilen B03",
+    "Vikkilen B05V",
+    "Vikkilen B06",
+    "Vikkilen B16"
+   ],
+   "rapporter": [
+    "r-niva5669",
+    "r-niva5670"
+   ],
+   "kapitler": [
+    "k-2008"
+   ],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2010,
+   "malt": 2,
+   "beskrevet": 0,
+   "punkter": [
+    "Holvika st. 1",
+    "Holvika st. 2"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 1
+  },
+  {
+   "aar": 2011,
+   "malt": 0,
+   "beskrevet": 0,
+   "punkter": [],
+   "rapporter": [
+    "r-niva6249"
+   ],
+   "kapitler": [
+    "k-2014"
+   ],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2012,
+   "malt": 0,
+   "beskrevet": 0,
+   "punkter": [],
+   "rapporter": [
+    "r-niva6272",
+    "r-niva6432"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2013,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva6608"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2014,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [
+    "r-niva6688"
+   ],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2015,
+   "malt": 3,
+   "beskrevet": 2,
+   "punkter": [
+    "Grimstad BR1",
+    "Groosefjorden",
+    "Grooseholmen"
+   ],
+   "rapporter": [
+    "r-niva6939"
+   ],
+   "kapitler": [
+    "k-2015"
+   ],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2016,
+   "malt": 9,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1",
+    "Vikkilen (83174)",
+    "Vikkilen (83175)",
+    "Vikkilen (83176)",
+    "Vikkilen (83177)",
+    "Vikkilen (83178)",
+    "Vikkilen (83179)",
+    "Vikkilen (83180)",
+    "Vikkilen (83181)"
+   ],
+   "rapporter": [],
+   "kapitler": [
+    "k-2016"
+   ],
+   "tiltak": [
+    "t-tildekking-2016"
+   ],
+   "hopp": 0
+  },
+  {
+   "aar": 2017,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2018,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [
+    "k-etterpaa"
+   ],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2019,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2020,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2021,
+   "malt": 5,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1",
+    "Vikkilen (83174)",
+    "Vikkilen (83175)",
+    "Vikkilen (83179)",
+    "Vikkilen (83181)"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2022,
+   "malt": 2,
+   "beskrevet": 0,
+   "punkter": [
+    "GRA-2 Groos",
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2023,
+   "malt": 3,
+   "beskrevet": 2,
+   "punkter": [
+    "GS5",
+    "GS6",
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  },
+  {
+   "aar": 2024,
+   "malt": 1,
+   "beskrevet": 0,
+   "punkter": [
+    "Grimstad BR1"
+   ],
+   "rapporter": [],
+   "kapitler": [],
+   "tiltak": [],
+   "hopp": 0
+  }
+ ],
  "tall": {
   "tbt_maks": {
    "verdi": 93000,

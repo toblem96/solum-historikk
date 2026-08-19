@@ -707,6 +707,59 @@ def skriv(data, navn, konstant, verdi, topptekst):
         f.write("".join(linjer))
 
 
+def bygg_tidslinje(ctx, kapitler):
+    """År for år: hvor mye ble målt, og hvor mye av det er beskrevet.
+
+    Dette er hele spørsmålet flaten stiller, tegnet som ett bilde. For hvert år
+    teller vi stasjonene som ble målt, og hvor mange av dem som er navngitt av
+    minst én rapport i datasettet. Avstanden mellom de to tallene er hullet:
+    feltarbeid som er gjort, men som ingen rapport vi kan finne beskriver.
+
+    Et år uten målinger og uten rapporter tas ikke med — da hadde aksen blitt
+    lange strekk av ingenting. «hopp» sier hvor mange år som ble hoppet over rett
+    før raden, slik at flaten kan tegne bruddet i stedet for å skjule det.
+    """
+    dekket = set()
+    for r in ctx["rapporter"]:
+        dekket |= set(r["dekkerPunkter"])
+
+    per_aar_rapport = defaultdict(list)
+    for r in ctx["rapporter"]:
+        if r["aar"]:
+            per_aar_rapport[r["aar"]].append(r["id"])
+
+    per_aar_kap = defaultdict(list)
+    for k in kapitler:
+        per_aar_kap[k["aarFra"]].append(k["id"])
+
+    per_aar_tiltak = defaultdict(list)
+    for t in ctx["tiltak"]:
+        if t.get("aarFra"):
+            per_aar_tiltak[t["aarFra"]].append(t["id"])
+
+    aar_st = ctx["aarStasjoner"]
+    alle = sorted(set(aar_st) | set(per_aar_rapport) | set(per_aar_kap) | set(per_aar_tiltak))
+    if not alle:
+        return []
+
+    ut, forrige = [], None
+    for a in alle:
+        navn = aar_st.get(a, set())
+        ut.append({
+            "aar": a,
+            "malt": len(navn),
+            "beskrevet": len(navn & dekket),
+            # Navnene, ikke bare tallet — ellers kan ikke kartet vise året.
+            "punkter": sorted(navn),
+            "rapporter": sorted(per_aar_rapport.get(a, [])),
+            "kapitler": sorted(per_aar_kap.get(a, [])),
+            "tiltak": sorted(per_aar_tiltak.get(a, [])),
+            "hopp": (a - forrige - 1) if forrige is not None else 0,
+        })
+        forrige = a
+    return ut
+
+
 def bygg_historie(omr, ctx):
     """Fortellingen om området, med hvert utsagn festet til et belegg.
 
@@ -767,6 +820,7 @@ def bygg_historie(omr, ctx):
     return {
         "innledning": sett_inn(h["innledning"], "innledningen"),
         "kapitler": kapitler,
+        "tidslinje": bygg_tidslinje(ctx, kapitler),
         "tall": tallene,
         "brukteRapporter": sorted(brukt),
         "antallRapporter": len(ctx["rapporter"]),
@@ -830,6 +884,9 @@ def main(omrade_id):
     # ellers ville ett år med mange parametere sett ut som mye feltarbeid.
     per_aar = Counter()
     malinger_per_aar = Counter()
+    # Hvilke stasjoner som ble målt hvilket år. Brukes til å regne ut hvor mye av
+    # et års feltarbeid som er beskrevet i en rapport — og hvor mye som ikke er det.
+    aar_stasjoner = defaultdict(set)
     for s in stasjoner:
         aar_her = set()
         for c in s["_rader"]:
@@ -839,6 +896,7 @@ def main(omrade_id):
                 malinger_per_aar[a] += 1
         for a in aar_her:
             per_aar[a] += 1
+            aar_stasjoner[a].add(s["navn"])
     aar_min, aar_maks = min(per_aar), max(per_aar)
 
     # koble undersøkelser til rapporter der stasjonene er de samme
@@ -1138,6 +1196,7 @@ def main(omrade_id):
         "stasjoner": stasjoner, "stoff": stoff, "kilder": kilder,
         "tiltak": tiltak, "rapporter": rapporter, "undersokelser": undersokelser,
         "hendelser": hendelser, "geografi": geografi,
+        "aarStasjoner": aar_stasjoner,
     })
     if historie:
         skriv(data, "historie.ts", "D_HISTORIE", historie, felles_tekst + """

@@ -10,7 +10,7 @@ import { TilstandCtx, reducer, startTilstand, type Bakgrunn } from "./tilstand";
 import {
   STASJONER, KLASSER, KILDER, RAPPORTER, OMRADE_FANER, STANDARD_OMRADE, HISTORIE,
   klassefarge, finnRapport, finnTiltak, alleStasjonerForRapport, kilderForRapport,
-  finnAvsnitt, kartFor,
+  finnAvsnitt, kartFor, stasjonerForAar,
   settOmrade, type OmradeId,
 } from "./domene";
 
@@ -84,7 +84,12 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
 
   /* Legenden teller det kartet faktisk viser — ellers står den og lyver om et
      utsnitt den ikke gjelder for. */
-  const avsnittPunkter = valgtAvsnitt ? kartFor(valgtAvsnitt).stasjoner : [];
+  const valgtAar = s.valg.slag === "aar" ? s.valg.aar : null;
+  const avsnittPunkter = valgtAvsnitt
+    ? kartFor(valgtAvsnitt).stasjoner
+    : valgtAar != null
+    ? stasjonerForAar(valgtAar)
+    : [];
 
   const fordeling = useMemo(() => {
     const tiltakets = valgtTiltak
@@ -105,7 +110,10 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
 
   /* Lista viker for panelet — det er panelet som trenger plassen, og kartet får
      resten. «Tilbake til lista» i panelet henter den fram igjen. */
-  const panelApent = s.valg.slag !== "ingen" && s.valg.slag !== "avsnitt";
+  /* Avsnitt og år styrer bare kartet — fortellingen skal bli stående, ellers
+     mister man plassen sin i teksten hver gang man ser på noe. */
+  const panelApent =
+    s.valg.slag !== "ingen" && s.valg.slag !== "avsnitt" && s.valg.slag !== "aar";
 
   const flytRapport = s.flyt?.slag === "rapport" ? finnRapport(s.flyt.id) : null;
 
@@ -141,9 +149,14 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
             </div>
           </div>
 
-          {(valgtRapport || valgtTiltak || oppsummering || valgtAvsnitt) && (
+          {(valgtRapport || valgtTiltak || oppsummering || valgtAvsnitt || valgtAar != null) && (
             <div className="kartstatus">
-              {valgtAvsnitt ? (
+              {valgtAar != null ? (
+                <>
+                  Kartet viser <b>{valgtAar}</b> — {avsnittPunkter.length}{" "}
+                  {avsnittPunkter.length === 1 ? "stasjon" : "stasjoner"} målt det året.
+                </>
+              ) : valgtAvsnitt ? (
                 <>
                   Kartet viser <b>det avsnittet handler om</b> — {avsnittPunkter.length}{" "}
                   {avsnittPunkter.length === 1 ? "punkt" : "punkter"}

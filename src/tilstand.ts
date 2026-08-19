@@ -24,12 +24,16 @@ export interface Tilstand {
     /* Ett avsnitt i fortellingen. Bare områdene som viser historikk som tekst
        bruker denne — kartet viser da punktene, kildene og tiltakene avsnittet
        handler om, og fortellingen blir stående. */
-    | { slag: "avsnitt"; id: string };
+    | { slag: "avsnitt"; id: string }
+    /* Ett år på tidslinja. Kartet viser stasjonene som ble målt det året. */
+    | { slag: "aar"; aar: number };
   /** Rapporten musepekeren hviler over. Kartet viser den så lenge ingenting
      annet er valgt — du ser hva kortet gjelder før du klikker. */
   forhandsvist: string | null;
   /** Avsnittet musepekeren hviler over, på samme måte som forhandsvist. */
   forhandsvistAvsnitt: string | null;
+  /** Året musepekeren hviler over på tidslinja. */
+  forhandsvistAar: number | null;
   visKilder: boolean;
   visTiltak: boolean;
   bakgrunn: Bakgrunn;
@@ -43,6 +47,7 @@ export const startTilstand: Tilstand = {
   valg: { slag: "ingen" },
   forhandsvist: null,
   forhandsvistAvsnitt: null,
+  forhandsvistAar: null,
   visKilder: false,
   visTiltak: true,
   bakgrunn: "graatone",
@@ -60,6 +65,8 @@ export type Handling =
   | { type: "velgStasjon"; navn: string | null }
   | { type: "velgAvsnitt"; id: string | null }
   | { type: "forhandsvisAvsnitt"; id: string | null }
+  | { type: "velgAar"; aar: number | null }
+  | { type: "forhandsvisAar"; aar: number | null }
   | { type: "tomtValg" }
   | { type: "veksle"; felt: "visKilder" | "visTiltak" }
   | { type: "settBakgrunn"; bakgrunn: Bakgrunn }
@@ -112,8 +119,22 @@ export function reducer(s: Tilstand, h: Handling): Tilstand {
     case "forhandsvisAvsnitt":
       if (s.forhandsvistAvsnitt === h.id) return s;
       return { ...s, forhandsvistAvsnitt: h.id };
+    case "velgAar":
+      if (h.aar == null) return { ...s, valg: { slag: "ingen" } };
+      return {
+        ...s,
+        valg: { slag: "aar", aar: h.aar },
+        forhandsvistAar: null,
+        zoomOnske: s.zoomOnske + 1,
+      };
+    case "forhandsvisAar":
+      if (s.forhandsvistAar === h.aar) return s;
+      return { ...s, forhandsvistAar: h.aar };
     case "tomtValg":
-      return { ...s, valg: { slag: "ingen" }, forhandsvistAvsnitt: null };
+      return {
+        ...s, valg: { slag: "ingen" },
+        forhandsvistAvsnitt: null, forhandsvistAar: null,
+      };
     case "veksle":
       return { ...s, [h.felt]: !s[h.felt] } as Tilstand;
     case "settBakgrunn":
