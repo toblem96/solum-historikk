@@ -15,6 +15,7 @@ import {
   STASJONER, KILDER, TILTAK, klassefarge, klasseNavn, klassetekstfarge,
   finnRapport, finnKilde, finnTiltak, stasjonerForRapport, alleStasjonerForRapport,
   stasjonerForTiltak, stasjonerForKilde, tiltakForRapport, kilderForRapport,
+  finnAvsnitt, kartFor,
   OMRADE, GEOGRAFI,
   type Stasjon,
 } from "./domene";
@@ -190,6 +191,25 @@ export function Kart() {
         : s.valg.slag === "ingen" && s.forhandsvist
         ? finnRapport(s.forhandsvist)
         : null;
+    /* Fortellingen: ett avsnitt eier kartet mens det er valgt, og mens pekeren
+       hviler over det. Da vises punktene, kildene og tiltakene det handler om. */
+    const avsnitt = finnAvsnitt(
+      s.valg.slag === "avsnitt" ? s.valg.id
+        : s.valg.slag === "ingen" ? s.forhandsvistAvsnitt
+        : null);
+    if (avsnitt) {
+      const k = kartFor(avsnitt);
+      if (k.stasjoner.length || k.kilder.length || k.tiltak.length) {
+        return {
+          modus: "avsnitt" as const,
+          uendret: false,
+          stasjoner: k.stasjoner.length ? k.stasjoner : STASJONER,
+          tiltak: k.tiltak,
+          kilder: k.kilder,
+        };
+      }
+    }
+
     const valgtKilde = s.valg.slag === "kilde" ? finnKilde(s.valg.id) : null;
     const valgtTiltak = s.valg.slag === "tiltak" ? finnTiltak(s.valg.id) : null;
     const oppsummering = s.valg.slag === "oppsummering";
@@ -234,7 +254,7 @@ export function Kart() {
       tiltak: rapporttiltak.length ? rapporttiltak : s.visTiltak ? TILTAK : [],
       kilder: s.visKilder ? (valgtKilde ? [valgtKilde] : KILDER) : valgtKilde ? [valgtKilde] : [],
     };
-  }, [s.valg, s.forhandsvist, s.visKilder, s.visTiltak]);
+  }, [s.valg, s.forhandsvist, s.forhandsvistAvsnitt, s.visKilder, s.visTiltak]);
 
   /* Opprett kartet én gang. */
   useEffect(() => {

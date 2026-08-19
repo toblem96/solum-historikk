@@ -1,12 +1,12 @@
-/* Generert av verktoy/bygg_omrade.py vikkilen — ikke redigert for hånd.
- * Råmaterialet ligger i verktoy/hentet/vikkilen/ og hentes av hent_omrade.py vikkilen.
+/* Generert av verktoy/bygg_omrade.py vikkilen2 — ikke redigert for hånd.
+ * Råmaterialet ligger i verktoy/hentet/vikkilen2/ og hentes av hent_omrade.py vikkilen2.
  */
 export const D_STASJONER_META = {
- "id": "vikkilen",
+ "id": "vikkilen2",
  "omrade": "Vikkilen",
- "fane": "Vikkilen",
+ "fane": "Vikkilen · historien",
  "kommune": "Grimstad",
- "undertittel": "TBT fra verftet AS Nymo — kartlagt 2004, tiltak i 2016, fulgt opp til 2024",
+ "undertittel": "Samme sted og samme målinger, men fortalt som historie — med alle referanserapportene, to hopp ut i referanselistene",
  "antall": 70,
  "antallFraVannmiljo": 52,
  "antallFraRapport": 18,

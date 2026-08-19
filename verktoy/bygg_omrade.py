@@ -28,6 +28,7 @@ from collections import Counter, defaultdict
 
 import les_figurer
 import omrader
+import sitater
 from felles import (C_BETEGN, C_GIVER, C_KODE, C_MEDIUM, C_NAVN, C_OPERATOR,
                     C_PARAM, C_TAKER, C_TID, C_VERDI, DATA_ROT, FIGURMAPPE,
                     INN_ROT, PARAM, TIL_M608, aar_av, avstand_km, grense_iii_iv,
@@ -416,6 +417,152 @@ def slaa_opp(idx, utgiver, nr):
     return None
 
 
+def sitatrapporter(omr, idx, alt_med):
+    """Rapportene referanselistene peker på — hvis området ber om det.
+
+    Regelen fra punktene og ut utvides ett hakk: en rapport er også relevant hvis
+    den siterer eller siteres av en rapport et målepunkt navngir. Sitatet leses ut
+    av PDF-en av sitater.py, ikke skrevet inn for hånd, og hvert funn bærer med
+    seg sida og linja det står på.
+
+    To grenser holder gjetting ute:
+
+      * Antall hopp er oppgitt av området (SITAT_HOPP), ikke ubegrenset.
+      * Nummeret må slå til eksakt i rapportserien. Numre referanselista nevner
+        men arkivet ikke har, tas ikke med — de er like ofte OCR-støy som ekte.
+    """
+    hopp = getattr(omr, "SITAT_HOPP", 0)
+    if not hopp:
+        return []
+
+    inn_mappe = getattr(omr, "INN", INN_ROT)
+    pdf_er = getattr(omr, "PDF_ER", {})
+    graf = {nr: sitater.les(os.path.join(inn_mappe, fil), nr)
+            for nr, fil in pdf_er.items()}
+
+    fro = {r.replace("r-niva", "") for r in alt_med}
+    naadd, funn = set(fro), {}
+    lag = set(fro)
+    for runde in range(1, hopp + 1):
+        neste = set()
+        for nr in lag:
+            for mål, b in graf.get(nr, {}).items():          # denne siterer
+                if mål not in naadd:
+                    neste.add(mål)
+                    funn.setdefault(mål, {"hopp": runde, "belegg": []})
+                    funn[mål]["belegg"].append({
+                        "retning": "sitert av", "motpart": f"NIVA {nr}",
+                        "side": b["side"], "sitat": b["sitat"],
+                        "iReferanseliste": b["iListe"]})
+        for kilde, mål in graf.items():                      # noen siterer denne
+            if kilde in naadd or not (lag & set(mål)):
+                continue
+            neste.add(kilde)
+            traff = sorted(lag & set(mål))[0]
+            b = mål[traff]
+            funn.setdefault(kilde, {"hopp": runde, "belegg": []})
+            funn[kilde]["belegg"].append({
+                "retning": "siterer", "motpart": f"NIVA {traff}",
+                "side": b["side"], "sitat": b["sitat"],
+                "iReferanseliste": b["iListe"]})
+        naadd |= neste
+        lag = neste
+        if not lag:
+            break
+
+    oppsett = getattr(omr, "RAPPORTOPPSETT", {})
+    ut, uten_treff = [], []
+    for nr, f in sorted(funn.items(), key=lambda x: int(x[0])):
+        h = slaa_opp(idx, "NIVA", nr)
+        if h is None and nr in pdf_er:
+            # Arkivet har den ikke, men PDF-en ligger i hentet/. Da finnes
+            # rapporten, og fila er et sterkere belegg enn en registerpost.
+            # Tittel, år og forfattere må da stå i områdets RAPPORTOPPSETT, med
+            # sidetallet i PDF-en de er lest fra.
+            opp = oppsett.get(nr, {})
+            veien = ", ".join(f'{b["retning"]} {b["motpart"]}' for b in f["belegg"][:3])
+            ut.append({
+                "id": f"r-niva{nr}",
+                "aar": opp.get("aar"),
+                "maaltFra": None, "maaltTil": None,
+                "tittel": opp.get("tittel") or f"NIVA-rapport {nr}",
+                "utforer": "NIVA",
+                "oppdragsgiver": opp.get("oppdragsgiver"),
+                "folk": opp.get("folk"),
+                "status": "lest" if opp.get("sammendrag") else "ikke_lest",
+                "tillit": "hoy",
+                "url": None,
+                "rapportnummer": f"NIVA {nr}",
+                "sider": opp.get("sider"),
+                "begrunnelse": (
+                    f"Ingen målepunkter navngir denne, og nummeret finnes ikke i NIVA-serien "
+                    f"i Nasjonalt vitenarkiv. Den er likevel med, fordi PDF-en ligger i "
+                    f"verktoy/hentet/ — fila er et sterkere belegg enn en registerpost. "
+                    f"Funnet via referanselista ({veien}). Tittel, år og forfattere er lest "
+                    f"av rapportens egen forside."),
+                "kobling": {"type": "sitat", "tekst": veien},
+                "dekkerPunkter": [], "figurer": [],
+                "sammendrag": opp.get("sammendrag"),
+                "noekkelfunn": opp.get("noekkelfunn", []),
+                "punkter": [], "punkterForbehold": opp.get("punkterForbehold"),
+                "referanser": None,
+                "kildeIder": opp.get("kildeIder", []), "tiltakIder": [],
+                "nyePunkter": [],
+                "funnetVia": "sitat",
+                "hopp": f["hopp"],
+                "sitatBelegg": f["belegg"],
+                "belegg": veien + " · PDF-en finnes, registerposten ikke",
+                "ikkeIArkivet": True,
+            })
+            continue
+        if h is None:
+            uten_treff.append(nr)
+            continue
+        e = h["entityDescription"]
+        ref = e.get("reference") or {}
+        pc = ref.get("publicationContext") or {}
+        aar = (e.get("publicationDate") or {}).get("year")
+        folk = [c["identity"]["name"] for c in (e.get("contributorsPreview") or [])
+                if c.get("identity") and "Project manager" not in c["identity"]["name"]]
+        abstrakt = " ".join((e.get("abstract") or "").split())
+        opp = oppsett.get(nr, {})
+        veien = ", ".join(f'{b["retning"]} {b["motpart"]}' for b in f["belegg"][:3])
+        ut.append({
+            "id": f"r-niva{nr}",
+            "aar": int(aar) if aar else None,
+            "maaltFra": None, "maaltTil": None,
+            "tittel": e.get("mainTitle") or "",
+            "utforer": "NIVA",
+            "oppdragsgiver": opp.get("oppdragsgiver"),
+            "folk": ", ".join(folk[:6]) or None,
+            "status": "lest" if abstrakt else "ikke_lest",
+            "tillit": "middels",
+            "url": h.get("handle") or h.get("id", "").replace(
+                "https://api.nva.unit.no/publication/", "https://nva.sikt.no/registration/"),
+            "rapportnummer": f"NIVA {pc.get('seriesNumber') or nr}",
+            "sider": ((ref.get("publicationInstance") or {}).get("pages") or {}).get("pages"),
+            "begrunnelse": (
+                f"Ingen målepunkter navngir denne. Den er funnet i referanselista til en "
+                f"rapport punktene navngir ({veien}), i hopp {f['hopp']} av "
+                f"{hopp}. Nummeret er slått opp i NIVA-serien og stemmer eksakt."),
+            "kobling": {"type": "sitat", "tekst": veien},
+            "dekkerPunkter": [], "figurer": [],
+            "sammendrag": abstrakt or None,
+            "noekkelfunn": opp.get("noekkelfunn", []),
+            "punkter": [], "punkterForbehold": None, "referanser": None,
+            "kildeIder": opp.get("kildeIder", []), "tiltakIder": [],
+            "nyePunkter": [],
+            "funnetVia": "sitat",
+            "hopp": f["hopp"],
+            "sitatBelegg": f["belegg"],
+            "belegg": veien,
+        })
+    if uten_treff:
+        print(f"    {len(uten_treff)} siterte numre finnes ikke i NIVA-serien og er utelatt: "
+              + ", ".join(sorted(uten_treff, key=int)))
+    return ut
+
+
 def bygg_rapporter(omr, inn, stasjoner):
     """Rapportene punktene selv navngir — ingen andre.
 
@@ -525,6 +672,9 @@ def bygg_rapporter(omr, inn, stasjoner):
         r["maaltFra"] = min(aar) if aar else None
         r["maaltTil"] = max(aar) if aar else None
 
+    # Rapporter funnet gjennom referanselistene, hvis området ber om det.
+    rapporter += sitatrapporter(omr, idx, {r["id"] for r in rapporter})
+
     # Rapportene vi har PDF-en til, får sine egne tabellverdier lest ut.
     if hasattr(omr, "beriker"):
         omr.beriker(rapporter, stasjoner)
@@ -557,30 +707,104 @@ def skriv(data, navn, konstant, verdi, topptekst):
         f.write("".join(linjer))
 
 
+def bygg_historie(omr, ctx):
+    """Fortellingen om området, med hvert utsagn festet til et belegg.
+
+    To ting skjer her, og begge finnes for at teksten skal kunne etterprøves:
+
+      Tallene settes inn.  Står det {tbt_maks} i teksten, regnes verdien ut av
+      måledataene og settes inn sammen med forklaringen på hvordan. Ingen tall i
+      fortellingen er skrevet for hånd, og hvert av dem kan vises fram i flaten.
+
+      Beleggene sjekkes.  Peker et avsnitt på en rapport, en kilde eller et
+      tiltak som ikke finnes i datasettet, stopper byggingen. Da er det enten
+      teksten eller dataene som er feil, og begge deler skal fram i lyset før
+      dette havner i produksjon.
+    """
+    h = getattr(omr, "HISTORIE", None)
+    if not h:
+        return None
+
+    tallene = omr.historietall(ctx) if hasattr(omr, "historietall") else {}
+    kjente = {
+        "rapport": {r["id"] for r in ctx["rapporter"]},
+        "kilde": {k["id"] for k in ctx["kilder"]},
+        "tiltak": {t["id"] for t in ctx["tiltak"]},
+        "register": {"grunnforurensning", "vannmiljo", "m608", "m409", "m350"},
+        "maaling": set(tallene),
+    }
+    punktnavn = {s["navn"] for s in ctx["stasjoner"]}
+
+    def sett_inn(tekst, hvor):
+        for navn, t in tallene.items():
+            tekst = tekst.replace("{" + navn + "}", str(t["verdi"]))
+        if "{" in tekst:
+            raise SystemExit(f"ukjent tallplassholder i {hvor}: "
+                             + tekst[tekst.index("{"):tekst.index("{") + 40])
+        return tekst
+
+    brukt = set()
+    kapitler = []
+    for k in h["kapitler"]:
+        avsnitt = []
+        for a in k["avsnitt"]:
+            tekst = sett_inn(a["tekst"], f'kapittel «{k["overskrift"]}»')
+            for b in a.get("belegg", []):
+                if b["ref"] not in kjente.get(b["slag"], set()):
+                    raise SystemExit(
+                        f'kapittel «{k["overskrift"]}» viser til {b["slag"]} '
+                        f'«{b["ref"]}», som ikke finnes i datasettet')
+                if b["slag"] == "rapport":
+                    brukt.add(b["ref"])
+            for n in a.get("punkter", []):
+                if n not in punktnavn:
+                    raise SystemExit(
+                        f'kapittel «{k["overskrift"]}» viser til punktet «{n}», '
+                        "som ikke finnes i datasettet")
+            avsnitt.append({**a, "tekst": tekst})
+        kapitler.append({**k, "avsnitt": avsnitt})
+
+    return {
+        "innledning": sett_inn(h["innledning"], "innledningen"),
+        "kapitler": kapitler,
+        "tall": tallene,
+        "brukteRapporter": sorted(brukt),
+        "antallRapporter": len(ctx["rapporter"]),
+        "merknad": (
+            "Hvert avsnitt oppgir hva det bygger på. «rapport» peker på en rapport i "
+            "referanselista under, «register» på Vannmiljø, Grunnforurensning eller en "
+            "veileder, og «måling» på et tall som er regnet ut av måledataene her og nå — "
+            "hold pekeren over tallet, så står regnestykket der. Byggeskriptet stopper hvis "
+            "et avsnitt viser til noe som ikke finnes i datasettet, så lista kan ikke komme "
+            "i utakt med teksten."),
+    }
+
+
 INDEKS = """/* Generert av verktoy/bygg_omrade.py — ikke redigert for hånd. */
-export {{ D_STASJONER }} from "./stasjoner";
-export {{ D_STASJONER_META }} from "./stasjoner_meta";
-export {{ D_RAPPORTER }} from "./rapporter";
-export {{ D_SAMLET }} from "./samlet";
-export {{ D_KILDER }} from "./kilder";
-export {{ D_KILDETYPER }} from "./kildetyper";
-export {{ D_STOFF }} from "./stoff";
-export {{ D_FLYT }} from "./flyt";
-export {{ D_HOTSPOT }} from "./hotspot";
-export {{ D_TILTAK }} from "./tiltak";
-export {{ D_HENDELSER }} from "./hendelser";
-export {{ D_MALINGER_PER_AAR }} from "./malinger_per_aar";
-export {{ D_TIDSROM }} from "./tidsrom";
-export {{ D_UNDERSOKELSER }} from "./undersokelser";
-export {{ D_RAPPORTNUMRE }} from "./rapportnumre";
-export {{ D_GEOGRAFI }} from "./geografi";
+export { D_STASJONER } from "./stasjoner";
+export { D_STASJONER_META } from "./stasjoner_meta";
+export { D_RAPPORTER } from "./rapporter";
+export { D_SAMLET } from "./samlet";
+export { D_KILDER } from "./kilder";
+export { D_KILDETYPER } from "./kildetyper";
+export { D_STOFF } from "./stoff";
+export { D_FLYT } from "./flyt";
+export { D_HOTSPOT } from "./hotspot";
+export { D_TILTAK } from "./tiltak";
+export { D_HENDELSER } from "./hendelser";
+export { D_MALINGER_PER_AAR } from "./malinger_per_aar";
+export { D_TIDSROM } from "./tidsrom";
+export { D_UNDERSOKELSER } from "./undersokelser";
+export { D_RAPPORTNUMRE } from "./rapportnumre";
+export { D_GEOGRAFI } from "./geografi";
 """
 
 
 def main(omrade_id):
     o = omrader.hent(omrade_id)
     omr = importlib.import_module(f"omrade_{o['id']}")
-    inn = os.path.join(INN_ROT, o["id"])
+    # Noen områder deler råmateriale med et annet — samme sted, annen framstilling.
+    inn = os.path.join(INN_ROT, o.get("hentet_fra", o["id"]))
     data = os.path.join(DATA_ROT, o["id"])
     os.makedirs(data, exist_ok=True)
     tekst = getattr(omr, "TEKSTER", {})
@@ -796,6 +1020,7 @@ def main(omrade_id):
     skriv(data, "stasjoner_meta.ts", "D_STASJONER_META", {
         "id": o["id"],
         "omrade": o["navn"],
+        "fane": o.get("fane", o["navn"]),
         "kommune": o["kommune"],
         "undertittel": o["undertittel"],
         "antall": len(stasjoner),
@@ -908,8 +1133,26 @@ def main(omrade_id):
  * Tidsaksen. Hver hendelse peker på en rapport, et tiltak eller en kilde i datasettet.""")
     skriv(data, "geografi.ts", "D_GEOGRAFI", geografi, felles_tekst)
 
+    # Fortellingen, for områdene som viser historikken som tekst i stedet for kort.
+    historie = bygg_historie(omr, {
+        "stasjoner": stasjoner, "stoff": stoff, "kilder": kilder,
+        "tiltak": tiltak, "rapporter": rapporter, "undersokelser": undersokelser,
+        "hendelser": hendelser, "geografi": geografi,
+    })
+    if historie:
+        skriv(data, "historie.ts", "D_HISTORIE", historie, felles_tekst + """
+ *
+ * Historikken fortalt som tekst, ikke som rapportkort. Hvert avsnitt bærer med seg
+ * hva det bygger på, og hvilke punkter, kilder og tiltak i kartet det handler om.
+ * Tallene i teksten er regnet ut av måledataene under byggingen — de er ikke skrevet
+ * inn for hånd, og «tall» under sier hvordan hvert av dem er regnet.
+ *
+ * Byggingen stopper hvis et avsnitt viser til en rapport, en kilde, et tiltak eller
+ * et punkt som ikke finnes i datasettet.""")
+
     io.open(os.path.join(data, "index.ts"), "w", encoding="utf-8",
-            newline="\n").write(INDEKS.format())
+            newline="\n").write(
+        INDEKS + ('export { D_HISTORIE } from "./historie";\n' if historie else ""))
 
     print("\nOppsummering")
     print(f"  stasjoner      {len(stasjoner)}")

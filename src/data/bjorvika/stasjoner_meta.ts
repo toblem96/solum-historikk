@@ -4,6 +4,7 @@
 export const D_STASJONER_META = {
  "id": "bjorvika",
  "omrade": "Bjørvika",
+ "fane": "Bjørvika",
  "kommune": "Oslo",
  "undertittel": "Fire tiltak i havnebassenget — mudring, tildekking med leire og kontroll. Alle åtte rapportene punktene navngir, mangler i arkivet",
  "antall": 176,

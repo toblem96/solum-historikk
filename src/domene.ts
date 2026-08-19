@@ -97,6 +97,15 @@ export interface Rapport {
   /** Punkter rapporten bringer som ikke finnes i Vannmiljø. */
   nyePunkter: string[];
   /** Hvordan rapporten ble funnet: navngitt av et punkt, eller via sitatgrafen. */
+  /** Hvor mange hopp ut i referanselistene rapporten ble funnet. */
+  hopp?: number;
+  /** Sitatene som førte hit — retning, motpart, side og linja det står på. */
+  sitatBelegg?: {
+    retning: string; motpart: string; side: number;
+    sitat: string; iReferanseliste: boolean;
+  }[];
+  /** Sann når rapporten ikke finnes i arkivet, men PDF-en gjør det. */
+  ikkeIArkivet?: boolean;
   funnetVia: "punkt" | "sitat";
   /** Én setning om beleggets art, vist på kortet og i panelet. */
   belegg: string;
@@ -144,6 +153,41 @@ export interface Hendelse {
   kildeId?: string | null;
 }
 
+/** Ett belegg bak et utsagn i fortellingen. */
+export interface Belegg {
+  slag: "rapport" | "register" | "maaling";
+  /** Rapport-id, registernavn, eller navnet på et utregnet tall. */
+  ref: string;
+  /** Hvor i kilden det står — sidetall, kapittel, feltnavn. */
+  sted?: string;
+}
+
+export interface HistorieAvsnitt {
+  tekst: string;
+  belegg: Belegg[];
+  punkter?: string[];
+  kilder?: string[];
+  tiltak?: string[];
+}
+
+export interface HistorieKapittel {
+  id: string;
+  aarFra: number;
+  aarTil: number;
+  overskrift: string;
+  avsnitt: HistorieAvsnitt[];
+}
+
+export interface Historie {
+  innledning: string;
+  kapitler: HistorieKapittel[];
+  /** Tallene i teksten, med regnestykket bak hvert av dem. */
+  tall: Record<string, { verdi: string | number; enhet: string; forklaring: string }>;
+  brukteRapporter: string[];
+  antallRapporter: number;
+  merknad: string;
+}
+
 export interface Undersokelse {
   id: string;
   aar: number;
@@ -175,6 +219,8 @@ interface Datasett {
   META: Record<string, unknown>;
   TIDSROM: { fra: number; til: number; merknad?: string };
   MALINGER_PER_AAR: Record<string, number>;
+  /** Bare områdene som forteller historikken som tekst har denne. */
+  HISTORIE: Historie | null;
   GEOGRAFI: {
     bbox: { v: number; s: number; o: number; n: number };
     senter: { lat: number; lng: number };
@@ -200,6 +246,9 @@ function lastDatasett(id: OmradeId): Datasett {
     META: d.D_STASJONER_META as unknown as Record<string, unknown>,
     TIDSROM: d.D_TIDSROM as unknown as Datasett["TIDSROM"],
     MALINGER_PER_AAR: d.D_MALINGER_PER_AAR as unknown as Record<string, number>,
+    HISTORIE: ("D_HISTORIE" in d
+      ? (d as { D_HISTORIE: unknown }).D_HISTORIE as Historie
+      : null),
     GEOGRAFI: d.D_GEOGRAFI as unknown as Datasett["GEOGRAFI"],
   };
 }
@@ -222,6 +271,7 @@ export let META = D.META;
 export let TIDSROM = D.TIDSROM;
 export let MALINGER_PER_AAR = D.MALINGER_PER_AAR;
 export let GEOGRAFI = D.GEOGRAFI;
+export let HISTORIE = D.HISTORIE;
 
 /**
  * Området flaten handler om. Alt her kommer fra datafilene, slik at et bytte av
@@ -277,6 +327,7 @@ export function settOmrade(id: OmradeId): void {
   TIDSROM = D.TIDSROM;
   MALINGER_PER_AAR = D.MALINGER_PER_AAR;
   GEOGRAFI = D.GEOGRAFI;
+  HISTORIE = D.HISTORIE;
   OMRADE = byggOmrade(D);
   STASJON_ETTER_NAVN = new Map(D.STASJONER.map((s) => [s.navn, s]));
   AAR_FRA = D.TIDSROM.fra;
@@ -399,4 +450,36 @@ export function byggListe(): Rapport[] {
 /** Undersøkelser uten en rapport i datasettet. */
 export function undersokelserUtenRapport(): Undersokelse[] {
   return UNDERSOKELSER.filter((u) => !u.rapportId || !finnRapport(u.rapportId));
+}
+
+/* ── Fortellingen ─────────────────────────────────────────────────────── */
+
+/** Id-en et avsnitt får: kapittelet pluss plassen i det. */
+export const avsnittId = (kapittel: string, i: number) => `${kapittel}#${i}`;
+
+export function finnAvsnitt(id: string | null): HistorieAvsnitt | null {
+  if (!id || !HISTORIE) return null;
+  const [kap, i] = id.split("#");
+  return HISTORIE.kapitler.find((k) => k.id === kap)?.avsnitt[Number(i)] ?? null;
+}
+
+/**
+ * Hva kartet skal vise for ett avsnitt.
+ *
+ * Nevner avsnittet punkter, er det de punktene. Nevner det bare en kilde eller
+ * et tiltak, tar vi punktene som hører til dem — ellers ville kartet blitt tomt
+ * for et avsnitt som handler om noe stedfestet.
+ */
+export function kartFor(a: HistorieAvsnitt): {
+  stasjoner: Stasjon[]; kilder: Kilde[]; tiltak: Tiltak[];
+} {
+  const kilder = (a.kilder ?? []).map((id) => finnKilde(id)).filter(Boolean) as Kilde[];
+  const tiltak = (a.tiltak ?? []).map((id) => finnTiltak(id)).filter(Boolean) as Tiltak[];
+  const navn = new Set(a.punkter ?? []);
+  if (!navn.size) {
+    for (const t of tiltak) t.punkter.forEach((n) => navn.add(n));
+    for (const k of kilder) k.koblet.forEach((n) => navn.add(n));
+  }
+  const stasjoner = [...navn].map((n) => finnStasjon(n)).filter(Boolean) as Stasjon[];
+  return { stasjoner, kilder, tiltak };
 }

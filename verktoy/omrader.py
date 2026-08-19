@@ -36,6 +36,19 @@ OMRADER = {
         # Her henter vi litt videre enn den og beskjærer i byggingen.
         "serier": ["NIVA-rapport", "NGI-rapport"],
     },
+    "vikkilen2": {
+        "id": "vikkilen2",
+        "navn": "Vikkilen",
+        "fane": "Vikkilen · historien",
+        "kommune": "Grimstad",
+        "undertittel": ("Samme sted og samme målinger, men fortalt som historie — med "
+                        "alle referanserapportene, to hopp ut i referanselistene"),
+        "senter": (58.3551, 8.6110),
+        "radius_km": 4.0,
+        # Deler råmaterialet med vikkilen; rammen er den samme.
+        "hentet_fra": "vikkilen",
+        "serier": ["NIVA-rapport"],
+    },
 }
 
 

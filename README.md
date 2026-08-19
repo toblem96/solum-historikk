@@ -3,26 +3,35 @@
 Prototype av historikkflaten i Natura. Ekte kart, ekte stasjoner, ekte rapporter.
 
 Spørsmålet flaten stiller er: *hva vet vi egentlig om forurensningshistorikken i
-et sjøområde, og hvor vet vi det fra?* Den viser to områder side om side, som
-faner øverst — bygget av de samme registrene etter nøyaktig samme metode.
+et sjøområde, og hvor vet vi det fra?* Den viser tre faner øverst — bygget av de
+samme registrene etter samme metode.
 
-| | Vikkilen, Grimstad | Bjørvika, Oslo |
-|---|---|---|
-| Målepunkter | 70 | 176 |
-| Sedimentmålinger | 2 652 | 4 285 |
-| Rapportnumre punktene navngir | 4 | 8 |
-| Funnet i arkivet | **4 av 4** | **0 av 8** |
-| Undersøkelser | 10, seks uten rapport | 10, alle uten rapport |
-| Tiltak | 1 | 4 |
-| Kilder, hvorav belagt | 7, én belagt | 7, ingen belagt |
+| | Vikkilen | Bjørvika | Vikkilen · historien |
+|---|---|---|---|
+| Målepunkter | 70 | 176 | 70 |
+| Sedimentmålinger | 2 652 | 4 285 | 2 652 |
+| Referanseregel | bare punktenes egne | bare punktenes egne | + to hopp i referanselistene |
+| Rapporter i lista | 4 | 8 | 30 |
+| Funnet i arkivet | **4 av 4** | **0 av 8** | 30 av 46 siterte |
+| Framstilling | rapportkort | rapportkort | fortelling med referanser |
+| Tiltak | 1 | 4 | 1 |
+| Kilder, hvorav belagt | 7, én belagt | 7, ingen belagt | 7, én belagt |
 
-At de gir så ulikt svar, er poenget. I Vikkilen navngir punktene fire
-NIVA-rapporter, og alle fire ligger åpent i Nasjonalt vitenarkiv — NIVA 5040
-skriver rett ut at «hovedkilden til forurensningen har vært aktivitetene ved AS
-Nymo». I Bjørvika navngir punktene åtte NGI-rapporter skrevet for Oslo Havn, og
-ingen av dem er publisert i et åpent arkiv. Vi har alle målingene fra mudringen,
-tildekkingen og etterkontrollen, og ingen av rapportene som beskriver dem — og
-dermed heller ingen kilde som kan belegges.
+**Vikkilen og Bjørvika** viser hva den strengeste regelen gir. I Vikkilen
+navngir punktene fire NIVA-rapporter, og alle fire ligger åpent i Nasjonalt
+vitenarkiv — NIVA 5040 skriver rett ut at «hovedkilden til forurensningen har vært
+aktivitetene ved AS Nymo». I Bjørvika navngir punktene åtte NGI-rapporter skrevet
+for Oslo Havn, og ingen av dem er publisert i et åpent arkiv. Vi har alle
+målingene fra mudringen, tildekkingen og etterkontrollen, og ingen av rapportene
+som beskriver dem — og dermed heller ingen kilde som kan belegges.
+
+**Vikkilen · historien** er samme sted og samme målinger, men to ting er
+annerledes. Referanseregelen utvides to hopp: en rapport er også med hvis den
+siterer eller siteres av en rapport punktene navngir. Og framstillingen er en
+fortelling i stedet for kort — hvert avsnitt oppgir hva det bygger på, og trykker
+du på merkelappen, felles referansen ut med sidetall og den faktiske linja fra
+PDF-en. Tallene i teksten er regnet ut av måledataene under byggingen, ikke
+skrevet inn for hånd.
 
 ## Start
 
@@ -102,6 +111,13 @@ atskilte grupper, tegnes ett omriss per gruppe — én innhylling over alt ville
 påstått at havnebassenget imellom også var tiltaksområde. Det står i
 verktøytipset på flaten.
 
+**Historikkfanen har ingen kort.** Der leses historien ovenfra og ned. Hvil over
+et avsnitt, så viser kartet punktene, kildene og tiltakene det handler om; trykk
+«vis i kartet», så blir det stående og kartet zoomer dit. Merkelappene under hvert
+avsnitt er beleggene: en rapport, et register, eller et tall regnet ut av
+måledataene. Trykk på en, så felles den ut med hele kjeden — for siterte
+rapporter med sidetall og den faktiske linja fra PDF-en, i begge retninger.
+
 `Esc` lukker det som står åpent. `?` over kartet henter fram omvisningen igjen.
 
 ## Bygge datasettene på nytt
@@ -128,6 +144,19 @@ Koden er delt i tre lag:
 * `verktoy/omrade_<id>.py` — rammen og alt som er skrevet for hånd om ett sted
 
 Et nytt område er en ny `omrade_<id>.py` og en linje i `verktoy/omrader.py`.
+
+`verktoy/sitater.py` bygger sitatgrafen. Den finner referanselista i hver PDF,
+trekker ut NIVA-rapportnumrene og noterer sida og linja hvert funn står på. To
+grenser holder gjetting ute: antall hopp er oppgitt av området, og nummeret må
+slå til eksakt i rapportserien. Numre referanselistene nevner uten at arkivet har
+dem, utelates — de er like ofte OCR-støy fra de skannede rapportene som ekte.
+Unntaket er rapporter vi har PDF-en til: da finnes rapporten, og fila er et
+sterkere belegg enn en registerpost.
+
+Fortellingen i `omrade_vikkilen2.py` er skrevet for hånd, men den kan ikke komme i
+utakt med dataene. Byggingen stopper hvis et avsnitt viser til en rapport, en
+kilde, et tiltak eller et punkt som ikke finnes i datasettet, og tallene i teksten
+settes inn fra `historietall()` — de kan ikke skrives inn for hånd.
 
 ## Forbehold
 

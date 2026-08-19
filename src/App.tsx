@@ -2,13 +2,15 @@ import { useEffect, useMemo, useReducer, useState } from "react";
 import "./stil.css";
 import { Kart, FLISER } from "./Kart";
 import { Liste } from "./Liste";
+import { Historie } from "./Historie";
 import { Panel } from "./Panel";
 import { Kildeflyt } from "./Kildeflyt";
 import { Rundtur, harSettRundtur, husk } from "./Rundtur";
 import { TilstandCtx, reducer, startTilstand, type Bakgrunn } from "./tilstand";
 import {
-  STASJONER, KLASSER, KILDER, RAPPORTER, OMRADE_FANER, STANDARD_OMRADE,
+  STASJONER, KLASSER, KILDER, RAPPORTER, OMRADE_FANER, STANDARD_OMRADE, HISTORIE,
   klassefarge, finnRapport, finnTiltak, alleStasjonerForRapport, kilderForRapport,
+  finnAvsnitt, kartFor,
   settOmrade, type OmradeId,
 } from "./domene";
 
@@ -69,6 +71,7 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
   const valgtRapport = s.valg.slag === "rapport" ? finnRapport(s.valg.id) : null;
   const valgtTiltak = s.valg.slag === "tiltak" ? finnTiltak(s.valg.id) : null;
   const oppsummering = s.valg.slag === "oppsummering";
+  const valgtAvsnitt = s.valg.slag === "avsnitt" ? finnAvsnitt(s.valg.id) : null;
 
   /* Punktene rapporten viser — dens egne pluss dem den bringer selv. */
   const rapportPunkter = valgtRapport ? alleStasjonerForRapport(valgtRapport) : [];
@@ -79,20 +82,30 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
     ? valgtTiltak.punkter.length
     : STASJONER.length;
 
+  /* Legenden teller det kartet faktisk viser — ellers står den og lyver om et
+     utsnitt den ikke gjelder for. */
+  const avsnittPunkter = valgtAvsnitt ? kartFor(valgtAvsnitt).stasjoner : [];
+
   const fordeling = useMemo(() => {
     const tiltakets = valgtTiltak
       ? (valgtTiltak.punkter.map((n) => STASJONER.find((x) => x.navn === n))
           .filter(Boolean) as typeof STASJONER)
       : [];
-    const liste = rapportPunkter.length ? rapportPunkter : tiltakets.length ? tiltakets : STASJONER;
+    const liste = avsnittPunkter.length
+      ? avsnittPunkter
+      : rapportPunkter.length
+      ? rapportPunkter
+      : tiltakets.length
+      ? tiltakets
+      : STASJONER;
     const m = new Map<number | null, number>();
     for (const st of liste) m.set(st.klasse, (m.get(st.klasse) ?? 0) + 1);
     return m;
-  }, [valgtRapport, valgtTiltak]);
+  }, [valgtRapport, valgtTiltak, s.valg]);
 
   /* Lista viker for panelet — det er panelet som trenger plassen, og kartet får
      resten. «Tilbake til lista» i panelet henter den fram igjen. */
-  const panelApent = s.valg.slag !== "ingen";
+  const panelApent = s.valg.slag !== "ingen" && s.valg.slag !== "avsnitt";
 
   const flytRapport = s.flyt?.slag === "rapport" ? finnRapport(s.flyt.id) : null;
 
@@ -128,9 +141,16 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
             </div>
           </div>
 
-          {(valgtRapport || valgtTiltak || oppsummering) && (
+          {(valgtRapport || valgtTiltak || oppsummering || valgtAvsnitt) && (
             <div className="kartstatus">
-              {oppsummering ? (
+              {valgtAvsnitt ? (
+                <>
+                  Kartet viser <b>det avsnittet handler om</b> — {avsnittPunkter.length}{" "}
+                  {avsnittPunkter.length === 1 ? "punkt" : "punkter"}
+                  {(valgtAvsnitt.kilder?.length ?? 0) > 0 && <>, {valgtAvsnitt.kilder!.length} kilde</>}
+                  {(valgtAvsnitt.tiltak?.length ?? 0) > 0 && <>, {valgtAvsnitt.tiltak!.length} tiltak</>}.
+                </>
+              ) : oppsummering ? (
                 <>Kartet viser <b>hele området</b> — {STASJONER.length} punkter, {KILDER.length} kilder.</>
               ) : valgtRapport && rapportPunkter.length === 0 ? (
                 <>
@@ -175,6 +195,8 @@ function Arbeidsflate({ rundturApen, settRundtur }: {
 
         {panelApent ? (
           <div className="panelvert bred"><Panel /></div>
+        ) : HISTORIE ? (
+          <div className="listevert historievert"><Historie /></div>
         ) : (
           <div className="listevert"><Liste /></div>
         )}

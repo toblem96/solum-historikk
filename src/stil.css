@@ -448,3 +448,110 @@ table.pt tbody tr:hover { background: var(--cream2); }
   width: 7px; height: 7px; border-radius: 50%; background: var(--line); cursor: pointer;
 }
 .rt-prikker i.paa { background: var(--teal); }
+
+/* ── Fortellingen ─────────────────────────────────────────────────────── */
+/* Denne flaten har ingen kort. Den leses ovenfra og ned, og hvert avsnitt kan
+   peke på kartet. Bredere enn kortlista, fordi løpende tekst trenger det. */
+.listevert.historievert { width: 480px; }
+
+.historie { height: 100%; overflow-y: auto; padding: 0.9rem 1.05rem 3rem; }
+
+.hist-hode { padding-bottom: 0.9rem; border-bottom: 1px solid var(--line); }
+.hist-merke {
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--teal);
+}
+.hist-inn { margin: 0.45rem 0 0.6rem; font-size: 0.88rem; line-height: 1.6; color: var(--ink); }
+.hist-alt {
+  border: 0; background: transparent; color: var(--teal); cursor: pointer;
+  padding: 0; font-size: 0.76rem;
+}
+.hist-alt:hover { text-decoration: underline; }
+
+.kapittel { padding: 1.1rem 0 0.3rem; border-bottom: 1px solid var(--line); }
+.kap-hode { display: flex; align-items: baseline; gap: 0.55rem; margin-bottom: 0.5rem; }
+.kap-aar {
+  font-family: var(--font-mono); font-size: 0.72rem; color: var(--teal);
+  font-weight: 600; flex: none;
+}
+.kap-hode h3 { margin: 0; font-size: 0.98rem; font-weight: 650; letter-spacing: -0.01em; }
+
+/* Et avsnitt er en enhet: teksten, hva den bygger på, og hva kartet skal vise. */
+.avsnitt {
+  margin: 0 -0.5rem 0.35rem; padding: 0.4rem 0.5rem 0.5rem;
+  border-left: 2px solid transparent; border-radius: var(--radius-input);
+}
+.avsnitt:hover { background: var(--cream2); }
+.avsnitt.valgt {
+  background: color-mix(in srgb, var(--teal) 7%, var(--paper));
+  border-left-color: var(--teal);
+}
+.avsnitt p { margin: 0 0 0.45rem; font-size: 0.85rem; line-height: 1.62; }
+.avsnitt-bunn {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.5rem;
+}
+.vis-i-kart {
+  margin-left: auto; border: 0; background: transparent; color: var(--teal);
+  cursor: pointer; padding: 0; font-size: 0.72rem; white-space: nowrap;
+}
+.vis-i-kart:hover { text-decoration: underline; }
+
+.belegg { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.belegg-rad { position: relative; }
+.belegg-merke {
+  font-family: var(--font-mono); font-size: 0.66rem; cursor: pointer;
+  padding: 0.06rem 0.4rem; border-radius: 99px; border: 1px solid var(--line);
+  background: var(--paper); color: var(--muted);
+}
+.belegg-merke:hover { border-color: var(--teal); color: var(--teal); }
+.belegg-merke.apen { background: var(--teal); border-color: var(--teal); color: #fff; }
+.belegg-merke.rapport { border-color: var(--ok-line); color: var(--ok-fg); background: var(--ok-bg); }
+.belegg-merke.rapport.apen { background: var(--teal); border-color: var(--teal); color: #fff; }
+.belegg-merke.maaling { border-style: dashed; }
+
+.belegg-boks {
+  position: absolute; left: 0; top: calc(100% + 0.3rem); z-index: 40;
+  width: 340px; max-width: 78vw; display: flex; flex-direction: column; gap: 0.25rem;
+  padding: 0.6rem 0.7rem; background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card); font-size: 0.76rem;
+  line-height: 1.5;
+}
+.belegg-boks b { font-size: 0.8rem; }
+.belegg-boks .d { color: var(--muted); }
+.belegg-boks a { color: var(--teal); }
+
+/* Referanselista under fortellingen. */
+.referanser { padding: 1.2rem 0 0; }
+.referanser h3 { margin: 0 0 0.4rem; font-size: 0.95rem; }
+.referanser .d { color: var(--muted); font-size: 0.76rem; line-height: 1.55; }
+.referanser ul { list-style: none; margin: 0.6rem 0; padding: 0; }
+
+.ref-rad { border-bottom: 1px solid var(--line); }
+.ref-hode {
+  display: grid; grid-template-columns: auto 1fr; gap: 0.1rem 0.5rem;
+  width: 100%; text-align: left; border: 0; background: transparent; cursor: pointer;
+  padding: 0.45rem 0; font: inherit; color: var(--ink);
+}
+.ref-hode:hover { color: var(--teal); }
+.ref-nr {
+  font-family: var(--font-mono); font-size: 0.68rem; color: var(--teal);
+  white-space: nowrap; padding-top: 0.1rem;
+}
+.ref-tittel { font-size: 0.8rem; line-height: 1.45; }
+.ref-merke {
+  grid-column: 2; font-family: var(--font-mono); font-size: 0.64rem; color: var(--muted);
+}
+.ref-rad.brukt .ref-nr { font-weight: 600; }
+.ref-rad:not(.brukt) .ref-tittel { color: var(--muted); }
+
+.ref-mer {
+  display: flex; flex-direction: column; gap: 0.35rem;
+  padding: 0 0 0.7rem; font-size: 0.76rem; line-height: 1.55;
+}
+.ref-mer .d { color: var(--muted); }
+.ref-mer a { color: var(--teal); }
+.ref-mer .sitat {
+  border-left: 2px solid var(--line); padding-left: 0.55rem; color: var(--muted);
+}
+.ref-mer .sitat i { color: var(--teal); font-style: normal; }
+.ref-sammendrag { margin: 0; }
