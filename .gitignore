@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.playwright-mcp/
+
+# Råmaterialet fra registrene — 206 MB, og PDF-ene er NIVAs egne rapporter.
+# Hentes på nytt med: python verktoy/hent_omrade.py <område>
+verktoy/hentet/
+
+# OS- og editor-rusk
+.DS_Store
+Thumbs.db
+*.log
+
+# Tesseract-språkdata, 35 MB tredjepartsfiler. Lastes ned separat — se ocr.py.
+verktoy/tessdata/
+__pycache__/
+*.pyc

@@ -1,0 +1,450 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Solum-stilen. Tokens, fonter og komponentregler er hentet fra
+   solum-lokal/frontend/src/index.css — ikke gjettet. Mono er forbeholdt tall,
+   koder, enheter og eyebrows; teal er eneste aksentfarge.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@font-face { font-family: "Hanken Grotesk"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("./fonts/HankenGrotesk-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Hanken Grotesk"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("./fonts/HankenGrotesk-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "Hanken Grotesk"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("./fonts/HankenGrotesk-Bold.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("./fonts/IBMPlexMono-Regular.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("./fonts/IBMPlexMono-SemiBold.woff2") format("woff2"); }
+
+:root {
+  font-family: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  color-scheme: light dark;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --ink: #0d2730;
+  --teal: #1f7480;
+  --cream: #fbf8f1;
+  --cream2: #f3ede1;
+  --paper: #fffdf8;
+  --line: #e0d8c6;
+  --muted: #5f6d6f;
+
+  --radius-card: 11px;
+  --radius-input: 7px;
+  --focus-ring: 0 0 0 3px rgba(31, 116, 128, 0.4);
+  --shadow-card: 0 6px 24px rgba(13, 39, 48, 0.08);
+
+  --c1: #3a7ec1; --c2: #54a44b; --c3: #f4d63f; --c4: #e8902e; --c5: #d8362a;
+
+  --ok-bg: #dcfce7; --ok-fg: #166534; --ok-line: #a7e0bd;
+  --info-bg: #e0f2fe; --info-fg: #075985; --info-line: #a8dcf5;
+  --warn-bg: #fef9c3; --warn-fg: #854d0e; --warn-line: #ecdf8f;
+  --down-bg: #fee2e2; --down-fg: #991b1b; --down-line: #f3b4b4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #eef4f2;
+    --teal: #6fb3bd;
+    --cream: #0b1c22;
+    --cream2: #10242b;
+    --paper: #12262c;
+    --line: rgba(255, 255, 255, 0.09);
+    --muted: #93a3a4;
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --ok-bg: #10281a; --ok-fg: #6ee7a5; --ok-line: #1f4d34;
+    --info-bg: #0c2c3a; --info-fg: #7cc7ef; --info-line: #1c4a5e;
+    --warn-bg: #2e2609; --warn-fg: #e6cf6a; --warn-line: #514618;
+    --down-bg: #3a1414; --down-fg: #fca5a5; --down-line: #5c2626;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-input); }
+.mono, .tall { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ── Skallet ──────────────────────────────────────────────────────────── */
+
+.app { display: flex; flex-direction: column; height: 100%; }
+
+/* Fanene — hvilket prosjekt flaten viser. Alt annet i toppen er borte; det som
+   står igjen, er valget mellom områdene. */
+.faner {
+  flex: none; display: flex; gap: 0.15rem; padding: 0 0.6rem;
+  background: var(--paper); border-bottom: 1px solid var(--line);
+}
+.faner button {
+  display: flex; flex-direction: column; gap: 0.1rem; align-items: flex-start;
+  border: 0; border-bottom: 2px solid transparent; background: transparent;
+  padding: 0.5rem 0.85rem 0.42rem; cursor: pointer; color: var(--muted);
+  font: inherit; text-align: left;
+}
+.faner button b { font-size: 0.94rem; font-weight: 600; letter-spacing: -0.01em; }
+.faner button span {
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.01em;
+  opacity: 0.85;
+}
+.faner button:hover { color: var(--ink); background: var(--cream2); }
+.faner button.on {
+  color: var(--ink); border-bottom-color: var(--teal); background: transparent;
+}
+.faner button.on span { color: var(--teal); opacity: 1; }
+
+.ws { flex: 1; display: flex; min-height: 0; }
+.kartvert { flex: 1; position: relative; min-width: 0; background: var(--cream2); }
+.panelvert {
+  width: 420px; flex: none; border-left: 1px solid var(--line); background: var(--paper);
+  display: flex; flex-direction: column; min-height: 0;
+}
+.listevert {
+  width: 380px; flex: none; border-left: 1px solid var(--line); background: var(--paper);
+  display: flex; flex-direction: column; min-height: 0;
+}
+/* Når panelet er åpent, viker lista. Panelet får litt mer bredde enn lista hadde,
+   men kartet får resten — det er kartet som skal ha plassen. */
+.panelvert.bred { width: 440px; }
+
+/* Kilderader som bare viser noe — de fører ingen steder, og skal ikke se ut
+   som om de gjør det. */
+.kilderad.stille { cursor: default; background: transparent; }
+.kilderad.stille:hover { border-color: var(--line); background: transparent; }
+
+/* Oppsummeringskortet skiller seg fra rapportkortene: det er ikke en rapport,
+   det er hele området. */
+.kort.oppsum {
+  border-color: color-mix(in srgb, var(--teal) 40%, var(--line));
+  background: color-mix(in srgb, var(--teal) 5%, var(--paper));
+  margin-bottom: 0.9rem;
+}
+.kort.oppsum .kort-thumb.tom {
+  background: color-mix(in srgb, var(--teal) 12%, var(--paper));
+  border-color: color-mix(in srgb, var(--teal) 35%, var(--line));
+  color: var(--teal);
+}
+.kort.oppsum .kort-aar { text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.66rem; }
+
+/* ── Kart ─────────────────────────────────────────────────────────────── */
+
+.kart { position: absolute; inset: 0; }
+.leaflet-container { background: var(--cream2); font-family: inherit; }
+.leaflet-control-attribution {
+  background: color-mix(in srgb, var(--paper) 88%, transparent) !important;
+  color: var(--muted) !important; font-size: 10.5px !important;
+}
+.leaflet-control-attribution a { color: var(--teal) !important; }
+.leaflet-bar a {
+  background: var(--paper) !important; color: var(--ink) !important;
+  border-bottom-color: var(--line) !important;
+}
+.leaflet-bar a:hover { background: var(--cream2) !important; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: var(--paper); color: var(--ink); box-shadow: var(--shadow-card);
+  border: 1px solid var(--line);
+}
+.leaflet-popup-content { margin: 0.7rem 0.85rem; font-size: 0.85rem; }
+.leaflet-popup-close-button { color: var(--muted) !important; }
+
+.kartverktoy {
+  position: absolute; right: 0.8rem; top: 0.8rem; z-index: 500;
+  display: flex; flex-direction: column; gap: 0.4rem; align-items: stretch;
+}
+.vgruppe {
+  display: flex; background: color-mix(in srgb, var(--paper) 94%, transparent);
+  border: 1px solid var(--line); border-radius: var(--radius-input);
+  box-shadow: var(--shadow-card); overflow: hidden; backdrop-filter: blur(8px);
+}
+.vgruppe button {
+  border: 0; background: transparent; padding: 0.42rem 0.7rem; cursor: pointer;
+  font-size: 0.78rem; color: var(--muted); white-space: nowrap;
+}
+.vgruppe button + button { border-left: 1px solid var(--line); }
+.vgruppe button:hover { background: var(--cream2); color: var(--ink); }
+.vgruppe button.on { background: var(--teal); color: #fff; font-weight: 600; }
+@media (prefers-color-scheme: dark) { .vgruppe button.on { color: #08181d; } }
+
+.legende {
+  position: absolute; left: 0.8rem; bottom: 0.8rem; z-index: 500;
+  background: color-mix(in srgb, var(--paper) 93%, transparent); backdrop-filter: blur(8px);
+  border: 1px solid var(--line); border-radius: var(--radius-input);
+  box-shadow: var(--shadow-card); padding: 0.5rem 0.7rem; max-width: 62%;
+}
+.legende-rad { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; font-size: 0.74rem; color: var(--muted); }
+.legende-rad + .legende-rad { margin-top: 0.4rem; padding-top: 0.4rem; border-top: 1px solid var(--line); }
+.prikk { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 0.3rem; vertical-align: -1px; }
+.legende .tall { color: var(--ink); font-weight: 600; }
+
+/* Venstremargen klarerer Leaflets zoom-kontroll, som ligger i samme hjørne. */
+.kartstatus {
+  position: absolute; left: 3.6rem; top: 0.8rem; z-index: 500;
+  background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(8px);
+  border: 1px solid var(--line); border-left: 3px solid var(--teal);
+  border-radius: var(--radius-input); box-shadow: var(--shadow-card);
+  padding: 0.5rem 0.8rem; font-size: 0.8rem; max-width: 46%;
+}
+.kartstatus b { font-weight: 600; }
+.kartstatus button {
+  border: 0; background: transparent; color: var(--teal); cursor: pointer;
+  padding: 0; margin-left: 0.5rem; font-size: 0.78rem; text-decoration: underline;
+}
+
+/* ── Tidslinje ────────────────────────────────────────────────────────── */
+
+.tidslinje {
+  flex: none; border-bottom: 1px solid var(--line); background: var(--paper);
+  padding: 0.55rem 1rem 0.3rem;
+}
+.tl-hode { display: flex; align-items: baseline; gap: 0.7rem; font-size: 0.78rem; color: var(--muted); }
+.tl-hode b { color: var(--ink); font-size: 0.86rem; font-weight: 600; }
+.tl-aar { font-family: var(--font-mono); color: var(--teal); font-weight: 600; }
+.tl-knapper { margin-left: auto; display: flex; gap: 0.3rem; }
+.tl-knapper button {
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+  border-radius: var(--radius-input); padding: 0.16rem 0.55rem; font-size: 0.75rem; cursor: pointer;
+}
+.tl-knapper button:hover { border-color: var(--teal); color: var(--teal); }
+
+.tl-spor { position: relative; height: 104px; margin-top: 0.35rem; cursor: pointer; user-select: none; }
+.tl-linje { position: absolute; left: 0; right: 0; top: 26px; height: 3px; border-radius: 2px;
+  background: color-mix(in srgb, var(--muted) 28%, transparent); }
+.tl-fyll { position: absolute; top: 26px; height: 3px; border-radius: 2px; background: var(--teal); }
+.tl-tetthet { position: absolute; left: 0; right: 0; top: 0; height: 22px; }
+.tl-tetthet i {
+  position: absolute; bottom: 0; width: 6px; transform: translateX(-50%);
+  background: color-mix(in srgb, var(--teal) 45%, transparent); border-radius: 1px;
+}
+.tl-hend { position: absolute; top: 20px; transform: translateX(-50%); text-align: center; cursor: pointer; }
+.tl-pin { width: 14px; height: 14px; border-radius: 50%; margin: 0 auto;
+  border: 2px solid var(--paper); box-shadow: 0 0 0 1px var(--line); transition: transform 0.12s; }
+.tl-hend:hover .tl-pin { transform: scale(1.3); }
+.tl-hend.rapport .tl-pin { background: var(--teal); }
+.tl-hend.tiltak .tl-pin { background: var(--c4); }
+.tl-hend.kilde .tl-pin { background: var(--warn-fg); }
+.tl-hend.mangler .tl-pin { background: var(--paper); border: 2px dashed var(--muted); box-shadow: none; }
+.tl-hend.dim { opacity: 0.32; }
+.tl-hend.valgt .tl-pin { box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 25%, transparent), 0 0 0 4px var(--teal); }
+.tl-lb { font-family: var(--font-mono); font-size: 0.62rem; color: var(--muted); margin-top: 3px; white-space: nowrap; }
+.tl-handtak {
+  position: absolute; top: 15px; transform: translateX(-50%); width: 16px; height: 30px;
+  border-radius: 5px; background: var(--paper); border: 2px solid var(--teal);
+  box-shadow: var(--shadow-card); cursor: grab; display: grid; place-items: center; z-index: 4;
+}
+.tl-handtak:active { cursor: grabbing; }
+.tl-handtak::after { content: ""; width: 2px; height: 12px; border-radius: 2px;
+  background: color-mix(in srgb, var(--teal) 55%, transparent); }
+.tl-boble {
+  position: absolute; top: -21px; left: 50%; transform: translateX(-50%);
+  background: var(--teal); color: #fff; font-family: var(--font-mono); font-size: 0.66rem;
+  font-weight: 600; padding: 1px 6px; border-radius: 4px;
+}
+@media (prefers-color-scheme: dark) { .tl-boble { color: #08181d; } }
+
+/* ── Lista ────────────────────────────────────────────────────────────── */
+
+.listehode { flex: none; padding: 0.7rem 0.85rem; border-bottom: 1px solid var(--line); }
+.listehode h2 { margin: 0; font-size: 0.74rem; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--muted); font-family: var(--font-mono); font-weight: 600; }
+.listehode .under { margin: 0.3rem 0 0; font-size: 0.78rem; color: var(--muted); }
+.listekropp { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0.7rem; min-height: 0; }
+
+.kort {
+  display: flex; gap: 0.6rem; width: 100%; text-align: left; cursor: pointer;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-card);
+  padding: 0.65rem; margin-bottom: 0.55rem; transition: border-color 0.12s, background 0.12s;
+}
+.kort:hover { border-color: color-mix(in srgb, var(--teal) 45%, var(--line)); background: var(--cream2); }
+.kort.valgt { border-color: var(--teal); background: color-mix(in srgb, var(--teal) 8%, var(--paper));
+  box-shadow: 0 0 0 1px var(--teal); }
+.kort.mangler { border-style: dashed; }
+.kort.dim { opacity: 0.5; }
+.kort-thumb { width: 48px; height: 62px; flex: none; border: 1px solid var(--line);
+  border-radius: 4px; overflow: hidden; background: var(--cream2); }
+.kort-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.kort-thumb.tom { display: grid; place-items: center; font-family: var(--font-mono);
+  font-size: 0.56rem; color: var(--muted); text-align: center; line-height: 1.3; padding: 2px; }
+.kort-txt { min-width: 0; flex: 1; }
+.kort-aar { font-family: var(--font-mono); font-size: 0.72rem; color: var(--teal); font-weight: 600; }
+.kort h3 { margin: 0.1rem 0 0.2rem; font-size: 0.86rem; line-height: 1.3; font-weight: 600; }
+.kort .meta { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.4rem; }
+.chip { font-size: 0.66rem; padding: 0.05rem 0.45rem; border-radius: 99px;
+  border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.chip.ok { border-color: var(--ok-line); color: var(--ok-fg); background: var(--ok-bg); }
+.chip.mid { border-color: var(--warn-line); color: var(--warn-fg); background: var(--warn-bg); }
+.chip.lav { border-style: dashed; }
+/* Koblingsteksten er en hel setning, ikke en merkelapp — den må få bryte. */
+.chip.setning { white-space: normal; flex-basis: 100%; line-height: 1.4;
+  padding: 0.2rem 0.5rem; border-radius: var(--radius-input); }
+.chip.teal { border-color: color-mix(in srgb, var(--teal) 45%, transparent); color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 9%, transparent); }
+
+/* ── Panel ────────────────────────────────────────────────────────────── */
+
+.pnl-hode { flex: none; padding: 0.75rem 0.9rem; border-bottom: 1px solid var(--line); }
+.tilbake { border: 0; background: transparent; color: var(--teal); cursor: pointer;
+  padding: 0; font-size: 0.78rem; margin-bottom: 0.35rem; }
+.tilbake:hover { text-decoration: underline; }
+.pnl-hode h2 { margin: 0 0 0.25rem; font-size: 1rem; line-height: 1.3; font-weight: 650; }
+.pnl-hode .meta { margin: 0; font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
+.pnl-kropp { flex: 1; overflow-y: auto; min-height: 0; }
+.sek { padding: 0.8rem 0.9rem; border-bottom: 1px solid var(--line); }
+.sek h4 { margin: 0 0 0.5rem; font-family: var(--font-mono); font-size: 0.66rem;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.sek p { margin: 0 0 0.5rem; font-size: 0.83rem; line-height: 1.55; }
+.sek p:last-child { margin-bottom: 0; }
+
+.figur { border: 1px solid var(--line); border-radius: var(--radius-input); overflow: hidden;
+  background: var(--cream2); cursor: zoom-in; display: block; width: 100%; padding: 0; text-align: left; }
+.figur img { width: 100%; display: block; }
+.figur figcaption { padding: 0.45rem 0.55rem; font-size: 0.7rem; color: var(--muted);
+  line-height: 1.45; border-top: 1px solid var(--line); }
+.figur + .figur { margin-top: 0.5rem; }
+
+.funn { margin: 0; padding-left: 1.05rem; font-size: 0.8rem; line-height: 1.5; }
+.funn li { margin: 0.3rem 0; }
+.funn li::marker { color: color-mix(in srgb, var(--teal) 60%, transparent); }
+
+table.pt { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.7rem; }
+table.pt th { text-align: left; font-weight: 600; color: var(--muted); font-size: 0.64rem;
+  border-bottom: 1px solid var(--line); padding: 0.25rem 0.3rem; }
+table.pt td { padding: 0.25rem 0.3rem; border-bottom: 1px solid var(--line); }
+table.pt td.v { text-align: right; }
+table.pt tbody tr { cursor: pointer; }
+table.pt tbody tr:hover { background: var(--cream2); }
+.side { font-family: var(--font-mono); font-size: 0.6rem; color: var(--teal);
+  border: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+  background: color-mix(in srgb, var(--teal) 8%, transparent); border-radius: 99px; padding: 0 0.4rem; }
+
+.rad { display: flex; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--line);
+  font-size: 0.8rem; line-height: 1.45; }
+.rad:last-child { border-bottom: 0; }
+.rad b { flex: none; width: 108px; font-size: 0.72rem; font-weight: 600; color: var(--muted); }
+
+.forbehold { font-size: 0.76rem; line-height: 1.5; color: var(--warn-fg); background: var(--warn-bg);
+  border: 1px solid var(--warn-line); border-radius: var(--radius-input); padding: 0.55rem 0.65rem; }
+.info { font-size: 0.76rem; line-height: 1.5; color: var(--info-fg); background: var(--info-bg);
+  border: 1px solid var(--info-line); border-radius: var(--radius-input); padding: 0.55rem 0.65rem; }
+
+.knapp { display: inline-flex; align-items: center; gap: 0.3rem; border: 1px solid var(--teal);
+  background: transparent; color: var(--teal); border-radius: var(--radius-input);
+  padding: 0.35rem 0.7rem; font-size: 0.78rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.knapp:hover { background: color-mix(in srgb, var(--teal) 10%, transparent); }
+.knapp.fyll { background: var(--teal); color: #fff; }
+@media (prefers-color-scheme: dark) { .knapp.fyll { color: #08181d; } }
+.knapprad { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.poeng { display: flex; align-items: center; gap: 0.5rem; margin: 0.4rem 0 0.7rem; }
+.poeng .bar { flex: 1; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.poeng .bar i { display: block; height: 100%; background: var(--teal); }
+.poeng .tall { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; color: var(--teal); }
+
+.kilderad { display: flex; gap: 0.5rem; width: 100%; text-align: left; align-items: flex-start;
+  border: 1px solid var(--line); border-radius: var(--radius-input); padding: 0.45rem 0.6rem;
+  background: var(--paper); cursor: pointer; margin-bottom: 0.35rem; }
+.kilderad:hover { border-color: var(--warn-line); background: var(--warn-bg); }
+.kilderad .rang { font-family: var(--font-mono); font-size: 0.68rem; color: var(--warn-fg); flex: none; }
+.kilderad .n { font-size: 0.78rem; font-weight: 600; line-height: 1.3; }
+.kilderad .d { font-family: var(--font-mono); font-size: 0.66rem; color: var(--muted); margin-top: 1px; }
+
+.kl { display: inline-flex; align-items: center; justify-content: center; min-width: 1.35rem;
+  padding: 0.05rem 0.35rem; border-radius: 3px; font-family: var(--font-mono);
+  font-size: 0.66rem; font-weight: 600; }
+
+/* ── Overlegg ─────────────────────────────────────────────────────────── */
+
+.overlegg { position: fixed; inset: 0; z-index: 2000; background: rgba(13, 39, 48, 0.55);
+  display: flex; align-items: center; justify-content: center; padding: 1.4rem; }
+.ovboks { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-card);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45); max-height: 100%; width: 100%;
+  display: flex; flex-direction: column; overflow: hidden; }
+.ovhode { flex: none; display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--line); }
+.ovhode h2 { margin: 0; font-size: 0.98rem; font-weight: 650; }
+.ovhode .under { font-size: 0.76rem; color: var(--muted); }
+.ovhode .under b { color: var(--ink); }
+.lukk { margin-left: auto; border: 1px solid var(--line); background: transparent; color: var(--muted);
+  border-radius: var(--radius-input); padding: 0.2rem 0.6rem; font-size: 0.76rem; cursor: pointer; }
+.lukk:hover { border-color: var(--teal); color: var(--teal); }
+.ovkropp { overflow: auto; padding: 0.9rem 1rem; }
+.ovkropp img { max-width: 100%; display: block; margin: 0 auto; }
+.ovnote { flex: none; padding: 0.6rem 1rem; border-top: 1px solid var(--line);
+  font-size: 0.74rem; color: var(--muted); line-height: 1.5; }
+
+/* ── Sankey ───────────────────────────────────────────────────────────── */
+
+.sankey { width: 100%; height: auto; display: block; }
+.sankey text { paint-order: stroke; stroke: var(--paper); stroke-width: 3.4px; stroke-linejoin: round; }
+.sankey .kolonne { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 1.1px; fill: var(--muted); }
+.sankey .navn { font-size: 11.5px; font-weight: 600; fill: var(--ink); }
+.sankey .under { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
+/* Søylene fører ingen steder — de framhever bare. Derfor ingen pekefinger, og
+   ingen egen hover-opasitet: framhevingen styres av diagrammet selv. */
+.sankey .soyle { cursor: default; }
+
+/* Kildemarkøren. Selve trekanten er et CSS-hjørne; wrapperen skal ikke ha
+   bakgrunn eller ramme, ellers vises en firkant rundt den. */
+.kildetrekant { background: none; border: 0; cursor: pointer; }
+.kildetrekant > span { display: block; width: 0; height: 0; }
+
+.tomt { padding: 2rem 1rem; text-align: center; color: var(--muted); font-size: 0.85rem; }
+
+/* ── Omvisning ────────────────────────────────────────────────────────── */
+
+.rundtur {
+  /* Løftet over legenden nede til venstre, ellers dekker de hverandre. */
+  position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%);
+  width: min(520px, calc(100% - 2rem)); z-index: 900;
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card);
+  padding: 0.9rem 1rem 0.8rem;
+}
+.rt-hode { display: flex; align-items: baseline; gap: 0.6rem; }
+.rt-hode h3 { margin: 0; font-size: 0.98rem; }
+.rt-teller {
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.06em;
+  color: var(--muted); text-transform: uppercase;
+}
+.rundtur p { margin: 0.15rem 0 0.7rem; font-size: 0.82rem; line-height: 1.5; }
+
+.rt-tegn {
+  display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
+  margin: 0.6rem 0 0.5rem; min-height: 26px;
+}
+.rt-punkt {
+  width: 13px; height: 13px; border-radius: 50%; border: 1.6px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--line);
+}
+.rt-skille { width: 10px; }
+.rt-trekant { width: 0; height: 0; border-left: 11px solid transparent;
+  border-right: 11px solid transparent; }
+.rt-trekant.mork { border-bottom: 19px solid #c0392b; }
+.rt-trekant.lys { border-bottom: 19px solid #e08b80; }
+.rt-flate {
+  display: block; width: 74px; height: 24px; border-radius: 12px;
+  border: 2px dashed #e8902e; background: color-mix(in srgb, #e8902e 12%, transparent);
+}
+.rt-flyt {
+  font-family: var(--font-mono); font-size: 0.72rem; color: var(--teal);
+  border: 1px solid var(--line); border-radius: 999px; padding: 0.2rem 0.6rem;
+}
+
+.rt-bunn { display: flex; align-items: center; gap: 0.5rem; }
+.rt-hopp {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font-size: 0.76rem; color: var(--muted); text-decoration: underline;
+}
+.rt-prikker { display: flex; gap: 5px; margin-left: auto; margin-right: 0.4rem; }
+.rt-prikker i {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--line); cursor: pointer;
+}
+.rt-prikker i.paa { background: var(--teal); }
